@@ -1,1 +1,13 @@
+.gradle/
+build/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
+.idea/
+*.iml
+local.properties
+.DS_Store
+.superpowers/
+*.env
 .worktrees/
