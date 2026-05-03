@@ -1,0 +1,29 @@
+server/src/main/resources/logback.xml
+  99e0c11e44e8f1d0 1-6
+server/build.gradle.kts
+  99e0c11e44e8f1d0 1-34
+server/src/main/resources/application.conf
+  99e0c11e44e8f1d0 1-23
+server/src/main/kotlin/com/maestro/server/Application.kt
+  99e0c11e44e8f1d0 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "02eff059ff345748e24c4805cf2f69540465be6c",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 78,
+      "total_deletions": 0,
+      "accepted_lines": 78,
+      "overriden_lines": 0
+    }
+  }
+}
