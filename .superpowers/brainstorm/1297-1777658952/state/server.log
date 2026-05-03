@@ -1,0 +1,6 @@
+{"type":"server-started","port":55203,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:55203","screen_dir":"/Users/jvillada/AndroidStudioProjects/maestro/.superpowers/brainstorm/1297-1777658952/content","state_dir":"/Users/jvillada/AndroidStudioProjects/maestro/.superpowers/brainstorm/1297-1777658952/state"}
+{"type":"screen-added","file":"/Users/jvillada/AndroidStudioProjects/maestro/.superpowers/brainstorm/1297-1777658952/content/architecture.html"}
+{"type":"screen-added","file":"/Users/jvillada/AndroidStudioProjects/maestro/.superpowers/brainstorm/1297-1777658952/content/folder-structure.html"}
+{"type":"screen-added","file":"/Users/jvillada/AndroidStudioProjects/maestro/.superpowers/brainstorm/1297-1777658952/content/data-api.html"}
+{"type":"screen-added","file":"/Users/jvillada/AndroidStudioProjects/maestro/.superpowers/brainstorm/1297-1777658952/content/testing-deploy.html"}
+{"type":"server-stopped","reason":"owner process exited"}

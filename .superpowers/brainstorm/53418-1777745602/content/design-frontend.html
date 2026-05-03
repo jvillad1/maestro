@@ -1,0 +1,87 @@
+<h2>Diseño — Arquitectura Frontend (CMP)</h2>
+<p class="subtitle">Sección 4 de 4: Navegación, ViewModels y estructura de pantallas</p>
+
+<div class="section">
+  <h3>Estructura de pantallas</h3>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+    <div style="background:#1e1e2e;border-radius:10px;padding:12px;border-top:3px solid #cba6f7;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">🔐</div>
+      <div style="font-family:monospace;font-size:11px;color:#cba6f7">LoginScreen</div>
+      <div style="font-size:11px;color:#6c7086;margin-top:4px">RegisterScreen</div>
+    </div>
+    <div style="background:#1e1e2e;border-radius:10px;padding:12px;border-top:3px solid #f9e2af;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">♪</div>
+      <div style="font-family:monospace;font-size:11px;color:#f9e2af">DashboardScreen</div>
+      <div style="font-size:11px;color:#6c7086;margin-top:4px">stats + frases</div>
+    </div>
+    <div style="background:#1e1e2e;border-radius:10px;padding:12px;border-top:3px solid #89b4fa;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">♬</div>
+      <div style="font-family:monospace;font-size:11px;color:#89b4fa">StudentsScreen</div>
+      <div style="font-size:11px;color:#6c7086;margin-top:4px">StudentDetailScreen</div>
+    </div>
+    <div style="background:#1e1e2e;border-radius:10px;padding:12px;border-top:3px solid #a6e3a1;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">📋</div>
+      <div style="font-family:monospace;font-size:11px;color:#a6e3a1">ClassesScreen</div>
+      <div style="font-size:11px;color:#6c7086;margin-top:4px">registro de clases</div>
+    </div>
+    <div style="background:#1e1e2e;border-radius:10px;padding:12px;border-top:3px solid #fab387;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">₿</div>
+      <div style="font-family:monospace;font-size:11px;color:#fab387">FinancesScreen</div>
+      <div style="font-size:11px;color:#6c7086;margin-top:4px">resumen mensual</div>
+    </div>
+    <div style="background:#1e1e2e;border-radius:10px;padding:12px;border-top:3px solid #f38ba8;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">✓</div>
+      <div style="font-family:monospace;font-size:11px;color:#f38ba8">TasksScreen</div>
+      <div style="font-size:11px;color:#6c7086;margin-top:4px">por prioridad</div>
+    </div>
+    <div style="background:#1e1e2e;border-radius:10px;padding:12px;border-top:3px solid #94e2d5;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">📅</div>
+      <div style="font-family:monospace;font-size:11px;color:#94e2d5">EventsScreen</div>
+      <div style="font-size:11px;color:#6c7086;margin-top:4px">agenda visual</div>
+    </div>
+    <div style="background:#1e1e2e;border-radius:10px;padding:12px;border-top:3px solid #eba0ac;text-align:center">
+      <div style="font-size:20px;margin-bottom:6px">𝅗𝅥</div>
+      <div style="font-family:monospace;font-size:11px;color:#eba0ac">MetronomeScreen</div>
+      <div style="font-size:11px;color:#6c7086;margin-top:4px">GuideScreen</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Patrón ViewModel por pantalla</h3>
+  <div style="background:#1e1e2e;border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8">
+    <span style="color:#cba6f7">commonMain/</span><br>
+    ├── ui/<br>
+    │&nbsp;&nbsp; ├── dashboard/&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">DashboardScreen.kt + DashboardViewModel.kt</span><br>
+    │&nbsp;&nbsp; ├── students/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">StudentsScreen.kt + StudentsViewModel.kt</span><br>
+    │&nbsp;&nbsp; ├── classes/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">ClassesScreen.kt + ClassesViewModel.kt</span><br>
+    │&nbsp;&nbsp; ├── finances/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">FinancesScreen.kt + FinancesViewModel.kt</span><br>
+    │&nbsp;&nbsp; ├── tasks/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">TasksScreen.kt + TasksViewModel.kt</span><br>
+    │&nbsp;&nbsp; ├── events/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">EventsScreen.kt + EventsViewModel.kt</span><br>
+    │&nbsp;&nbsp; ├── metronome/&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">MetronomeScreen.kt (sin ViewModel — local state)</span><br>
+    │&nbsp;&nbsp; └── guide/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">GuideScreen.kt (sin ViewModel — datos estáticos)</span><br>
+    ├── network/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">ApiClient.kt + endpoints</span><br>
+    ├── auth/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">AuthViewModel.kt + TokenStorage</span><br>
+    └── navigation/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">AppNavigation.kt (Navigation 3)</span>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  <div style="background:#313244;border-radius:12px;padding:14px;border-left:3px solid #89b4fa">
+    <div class="label" style="color:#89b4fa">Flujo de datos</div>
+    <p style="font-size:12px;color:#cdd6f4;margin:8px 0 0;line-height:1.7">
+      Screen → observa StateFlow del ViewModel<br>
+      ViewModel → llama ApiClient (Ktor Client)<br>
+      ApiClient → HTTP al Ktor backend<br>
+      Backend → consulta DB con Exposed<br>
+      Respuesta sube la cadena de vuelta
+    </p>
+  </div>
+  <div style="background:#313244;border-radius:12px;padding:14px;border-left:3px solid #f9e2af">
+    <div class="label" style="color:#f9e2af">Token JWT</div>
+    <p style="font-size:12px;color:#cdd6f4;margin:8px 0 0;line-height:1.7">
+      Guardado en <code style="background:#1e1e2e;padding:1px 4px;border-radius:3px">localStorage</code> (Web) y <code style="background:#1e1e2e;padding:1px 4px;border-radius:3px">DataStore</code> (Android).<br>
+      Al arrancar la app: si hay token válido → ir a Dashboard. Si no → Login.
+    </p>
+  </div>
+</div>

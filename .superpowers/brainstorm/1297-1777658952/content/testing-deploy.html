@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maestro — Testing y Deploy</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: sans-serif; background: #0f1117; color: #e0e0e0; padding: 28px; }
+  h2 { color: #C9A84C; font-size: 17px; letter-spacing: 1px; margin-bottom: 6px; }
+  .subtitle { color: #888; font-size: 13px; margin-bottom: 28px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 960px; margin: 0 auto; }
+  .full { grid-column: 1 / -1; }
+
+  .card {
+    background: #16181f;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title { font-size: 13px; font-weight: 700; }
+  .card-body { padding: 16px; }
+
+  .tag { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
+  .tag-green  { background: rgba(45,80,22,0.3);    color: #6DBF5E; }
+  .tag-blue   { background: rgba(59,130,246,0.2);  color: #60A5FA; }
+  .tag-purple { background: rgba(167,139,250,0.2); color: #A78BFA; }
+  .tag-gold   { background: rgba(201,168,76,0.2);  color: #C9A84C; }
+  .tag-terra  { background: rgba(184,92,56,0.2);   color: #E07050; }
+  .tag-slate  { background: rgba(100,116,139,0.2); color: #94A3B8; }
+
+  /* Test layers */
+  .test-layer {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .test-layer:last-child { border-bottom: none; }
+  .test-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .test-info { flex: 1; }
+  .test-name { font-size: 12px; font-weight: 700; color: #ccc; margin-bottom: 3px; }
+  .test-desc { font-size: 11px; color: #666; line-height: 1.5; }
+  .test-example { font-family: monospace; font-size: 10.5px; color: #A78BFA; background: rgba(167,139,250,0.06); border-radius: 4px; padding: 4px 8px; margin-top: 6px; display: block; }
+  .test-scope { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-left: auto; flex-shrink: 0; padding: 2px 8px; border-radius: 20px; }
+  .scope-common  { background: rgba(167,139,250,0.15); color: #A78BFA; }
+  .scope-server  { background: rgba(184,92,56,0.15);   color: #E07050; }
+
+  /* Deploy steps */
+  .deploy-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .deploy-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: #C9A84C;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-info .step-title { font-size: 12px; font-weight: 700; color: #ccc; margin-bottom: 3px; }
+  .step-info .step-desc  { font-size: 11px; color: #666; line-height: 1.5; }
+  code { font-family: monospace; font-size: 10.5px; color: #A78BFA; }
+
+  /* CI Pipeline */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+  .pipe-step {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 11px;
+    text-align: center;
+    min-width: 100px;
+  }
+  .pipe-step .pipe-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #555; margin-bottom: 3px; }
+  .pipe-step .pipe-name  { font-weight: 700; color: #ccc; font-size: 12px; }
+  .pipe-arrow { color: #333; font-size: 16px; padding: 0 4px; }
+
+  /* Updates from section 3 */
+  .update-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .update-item:last-child { border-bottom: none; }
+  .update-badge { background: rgba(45,80,22,0.25); color: #6DBF5E; border: 1px solid rgba(45,80,22,0.4); border-radius: 4px; font-size: 9px; font-weight: 800; padding: 2px 7px; flex-shrink: 0; margin-top: 1px; text-transform: uppercase; letter-spacing: 1px; }
+  .update-text .update-title { font-size: 12px; font-weight: 700; color: #ccc; margin-bottom: 3px; }
+  .update-text .update-desc  { font-size: 11px; color: #666; line-height: 1.5; }
+
+  .note {
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-size: 11.5px;
+    color: #aaa;
+    line-height: 1.7;
+  }
+  .note strong { color: #C9A84C; }
+</style>
+</head>
+<body>
+
+<h2>Testing y Despliegue — Maestro CMP</h2>
+<p class="subtitle">Sección 4 de 4 · Pruebas · CI/CD · Railway · Vercel</p>
+
+<div class="grid">
+
+  <!-- AJUSTES API -->
+  <div class="card full">
+    <div class="card-header">
+      <span class="tag tag-green">+ Añadido</span>
+      <span class="card-title">Ajustes al diseño de API (sección 3)</span>
+    </div>
+    <div class="card-body">
+      <div class="update-item">
+        <div class="update-badge">nuevo</div>
+        <div class="update-text">
+          <div class="update-title">GET /dashboard/summary</div>
+          <div class="update-desc">Devuelve en una sola llamada: conteo de estudiantes, clases del mes, ingresos cobrados/pendientes, últimas 4 clases y próximos 3 eventos. Elimina 4 requests paralelos al cargar la app — mejora perceptible en tiempo a primera pantalla.</div>
+        </div>
+      </div>
+      <div class="update-item">
+        <div class="update-badge">nuevo</div>
+        <div class="update-text">
+          <div class="update-title">POST /auth/refresh · Refresh token (30 días)</div>
+          <div class="update-desc">Al hacer login, el servidor devuelve un JWT de corta vida (1 día) y un refresh token opaco de 30 días guardado en tabla <code>refresh_tokens</code>. El cliente lo renueva silenciosamente antes de expirar. El maestro nunca ve un "sesión expirada" inesperado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTING -->
+  <div class="card">
+    <div class="card-header">
+      <span class="tag tag-blue">Testing</span>
+      <span class="card-title">Estrategia de pruebas</span>
+    </div>
+    <div class="card-body">
+
+      <div class="test-layer">
+        <div class="test-icon">🧪</div>
+        <div class="test-info">
+          <div class="test-name">Unit tests — dominio y use cases</div>
+          <div class="test-desc">Lógica pura en <code>commonMain</code>: cálculo de finanzas, validaciones de modelos, casos de uso. Sin dependencias externas.</div>
+          <code class="test-example">GetFinanceSummaryTest · TogglePaymentTest</code>
+        </div>
+        <div class="test-scope scope-common">commonMain</div>
+      </div>
+
+      <div class="test-layer">
+        <div class="test-icon">🔌</div>
+        <div class="test-info">
+          <div class="test-name">Integration tests — rutas Ktor</div>
+          <div class="test-desc">Pruebas de endpoints con <code>testApplication</code> de Ktor + H2 en memoria. Verifica auth, multi-tenant y respuestas HTTP correctas.</div>
+          <code class="test-example">StudentRoutesTest · AuthRoutesTest</code>
+        </div>
+        <div class="test-scope scope-server">server</div>
+      </div>
+
+      <div class="test-layer">
+        <div class="test-icon">📸</div>
+        <div class="test-info">
+          <div class="test-name">Screenshot tests — Composables</div>
+          <div class="test-desc">Parecida à Roborazzi: renderiza Composables clave (StatCard, StudentCard, DashboardScreen) y compara con golden images. Corre en JVM, sin emulador.</div>
+          <code class="test-example">DashboardScreenTest · StatCardTest</code>
+        </div>
+        <div class="test-scope scope-common">commonMain</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DEPLOY -->
+  <div class="card">
+    <div class="card-header">
+      <span class="tag tag-terra">Deploy</span>
+      <span class="card-title">Infraestructura de producción</span>
+    </div>
+    <div class="card-body">
+
+      <div class="deploy-step">
+        <div class="step-num">1</div>
+        <div class="step-info">
+          <div class="step-title">Backend → Railway</div>
+          <div class="step-desc">Ktor se empaqueta como Docker container. Railway detecta el <code>Dockerfile</code>, lo buildea y despliega automáticamente en cada push a <code>main</code>. PostgreSQL incluido en el mismo proyecto Railway.</div>
+        </div>
+      </div>
+
+      <div class="deploy-step">
+        <div class="step-num">2</div>
+        <div class="step-info">
+          <div class="step-title">Frontend Web → Vercel</div>
+          <div class="step-desc">El build de Kotlin/Wasm genera archivos estáticos (<code>.wasm</code> + <code>.js</code> + <code>index.html</code>). Vercel los sirve desde CDN global. Deploy automático en cada push.</div>
+        </div>
+      </div>
+
+      <div class="deploy-step">
+        <div class="step-num">3</div>
+        <div class="step-info">
+          <div class="step-title">Android → Google Play</div>
+          <div class="step-desc">APK / AAB generado desde el mismo monorepo con Gradle. Deploy manual en fase inicial — automatizable con Fastlane después.</div>
+        </div>
+      </div>
+
+      <div class="deploy-step">
+        <div class="step-num">4</div>
+        <div class="step-info">
+          <div class="step-title">iOS → App Store</div>
+          <div class="step-desc">Requiere Mac con Xcode para compilar el target Kotlin/Native. En fase inicial: build y submit manual desde Xcode.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CI/CD -->
+  <div class="card full">
+    <div class="card-header">
+      <span class="tag tag-purple">CI/CD</span>
+      <span class="card-title">GitHub Actions — pipeline en cada Pull Request y push a main</span>
+    </div>
+    <div class="card-body">
+      <div style="margin-bottom:16px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:10px;">Pull Request</div>
+        <div class="pipeline">
+          <div class="pipe-step"><div class="pipe-label">1</div><div class="pipe-name">Unit tests</div></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step"><div class="pipe-label">2</div><div class="pipe-name">Ktor tests</div></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step"><div class="pipe-label">3</div><div class="pipe-name">Build Wasm</div></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step"><div class="pipe-label">4</div><div class="pipe-name">✅ Merge OK</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:10px;">Push a main</div>
+        <div class="pipeline">
+          <div class="pipe-step"><div class="pipe-label">1</div><div class="pipe-name">Tests ✓</div></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step"><div class="pipe-label">2</div><div class="pipe-name">Docker build</div></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step"><div class="pipe-label">3</div><div class="pipe-name">Deploy Railway</div></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step"><div class="pipe-label">4</div><div class="pipe-name">Deploy Vercel</div></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-step" style="background:rgba(45,80,22,0.15);border-color:rgba(45,80,22,0.3);"><div class="pipe-label">5</div><div class="pipe-name" style="color:#6DBF5E;">🚀 Live</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL NOTE -->
+  <div class="note full">
+    <strong>Orden de construcción recomendado:</strong>
+    &nbsp;① Backend Ktor (modelos + auth + CRUD) →
+    &nbsp;② shared/domain + API client →
+    &nbsp;③ UI Web en commonMain pantalla por pantalla →
+    &nbsp;④ Conectar Web al backend →
+    &nbsp;⑤ Android target →
+    &nbsp;⑥ iOS target.<br><br>
+    El metrónomo y la guía de niveles se construyen en paralelo con las pantallas de UI porque no dependen del backend.
+  </div>
+
+</div>
+</body>
+</html>

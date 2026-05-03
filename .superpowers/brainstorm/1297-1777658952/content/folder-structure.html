@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maestro — Estructura de carpetas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: sans-serif; background: #0f1117; color: #e0e0e0; padding: 28px; }
+
+  h2 { color: #C9A84C; font-size: 17px; letter-spacing: 1px; margin-bottom: 6px; }
+  .subtitle { color: #888; font-size: 13px; margin-bottom: 28px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 920px; margin: 0 auto; }
+
+  .module {
+    background: #16181f;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+  .module-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .module-icon { font-size: 16px; }
+  .module-name { font-size: 13px; font-weight: 700; }
+  .module-tag {
+    margin-left: auto;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .tree { padding: 14px 16px; font-family: 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 11.5px; line-height: 1.9; }
+  .dir  { color: #60A5FA; }
+  .file { color: #94A3B8; }
+  .file-kt { color: #A78BFA; }
+  .file-gradle { color: #6DBF5E; }
+  .file-sql { color: #FBBF24; }
+  .comment { color: #3d4455; font-style: italic; }
+  .indent1 { padding-left: 16px; }
+  .indent2 { padding-left: 32px; }
+  .indent3 { padding-left: 48px; }
+  .indent4 { padding-left: 64px; }
+
+  .highlight { background: rgba(201,168,76,0.08); border-left: 2px solid #C9A84C; margin-left: -16px; padding-left: 14px; border-radius: 0 4px 4px 0; }
+
+  /* Full width for shared module */
+  .module-full { grid-column: 1 / -1; }
+
+  .badge-shared { background: rgba(167,139,250,0.15); color: #A78BFA; border: 1px solid rgba(167,139,250,0.3); }
+  .badge-server { background: rgba(184,92,56,0.15);   color: #E07050; border: 1px solid rgba(184,92,56,0.3); }
+  .badge-web    { background: rgba(201,168,76,0.15);  color: #C9A84C; border: 1px solid rgba(201,168,76,0.3); }
+  .badge-mobile { background: rgba(100,116,139,0.15); color: #94A3B8; border: 1px solid rgba(100,116,139,0.3); }
+  .badge-root   { background: rgba(45,80,22,0.2);     color: #6DBF5E; border: 1px solid rgba(45,80,22,0.5); }
+
+  .note {
+    grid-column: 1 / -1;
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.6;
+  }
+  .note strong { color: #C9A84C; }
+</style>
+</head>
+<body>
+
+<h2>Estructura del proyecto — Maestro CMP</h2>
+<p class="subtitle">Sección 2 de 4 · Organización de módulos en el monorepo</p>
+
+<div class="grid">
+
+  <!-- ROOT -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-icon">🗂</span>
+      <span class="module-name">maestro/ (raíz)</span>
+      <span class="module-tag badge-root">Monorepo</span>
+    </div>
+    <div class="tree">
+      <div class="dir">maestro/</div>
+      <div class="indent1 file-gradle">├── settings.gradle.kts</div>
+      <div class="indent1 file-gradle">├── build.gradle.kts</div>
+      <div class="indent1 file-gradle">├── gradle.properties</div>
+      <div class="indent1 file">├── .gitignore</div>
+      <div class="indent1 dir">├── composeApp/    <span class="comment">← UI + clientes</span></div>
+      <div class="indent1 dir">├── shared/        <span class="comment">← lógica + domain</span></div>
+      <div class="indent1 dir">├── server/        <span class="comment">← Ktor backend</span></div>
+      <div class="indent1 dir">├── iosApp/        <span class="comment">← entry point iOS</span></div>
+      <div class="indent1 dir">└── documentation/ <span class="comment">← prototipo ref.</span></div>
+    </div>
+  </div>
+
+  <!-- SERVER -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-icon">⚙️</span>
+      <span class="module-name">server/</span>
+      <span class="module-tag badge-server">Ktor Backend</span>
+    </div>
+    <div class="tree">
+      <div class="dir">server/</div>
+      <div class="indent1 file-gradle">├── build.gradle.kts</div>
+      <div class="indent1 dir">└── src/main/kotlin/</div>
+      <div class="indent2 dir">└── com/maestro/</div>
+      <div class="indent3 file-kt">├── Application.kt</div>
+      <div class="indent3 dir">├── auth/</div>
+      <div class="indent4 file-kt">│   ├── AuthRoutes.kt</div>
+      <div class="indent4 file-kt">│   └── JwtService.kt</div>
+      <div class="indent3 dir">├── students/</div>
+      <div class="indent4 file-kt">│   ├── StudentRoutes.kt</div>
+      <div class="indent4 file-kt">│   └── StudentRepository.kt</div>
+      <div class="indent3 dir">├── classes/</div>
+      <div class="indent3 dir">├── events/</div>
+      <div class="indent3 dir">├── tasks/</div>
+      <div class="indent3 dir">└── db/</div>
+      <div class="indent4 file-kt">    ├── Tables.kt</div>
+      <div class="indent4 file-sql">    └── migrations/</div>
+    </div>
+  </div>
+
+  <!-- SHARED — full width -->
+  <div class="module module-full">
+    <div class="module-header">
+      <span class="module-icon">💜</span>
+      <span class="module-name">shared/  — commonMain</span>
+      <span class="module-tag badge-shared">Kotlin Multiplatform · Corazón del proyecto</span>
+    </div>
+    <div class="tree" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 24px;">
+      <div>
+        <div class="dir">domain/</div>
+        <div class="indent1 dir">├── model/</div>
+        <div class="indent2 file-kt">│   ├── Teacher.kt</div>
+        <div class="indent2 file-kt">│   ├── Student.kt</div>
+        <div class="indent2 file-kt">│   ├── ClassEntry.kt</div>
+        <div class="indent2 file-kt">│   ├── MusicEvent.kt</div>
+        <div class="indent2 file-kt">│   └── Task.kt</div>
+        <div class="indent1 dir">├── repository/</div>
+        <div class="indent2 file-kt">│   ├── StudentRepository.kt</div>
+        <div class="indent2 file-kt">│   └── ClassRepository.kt</div>
+        <div class="indent1 dir">└── usecase/</div>
+        <div class="indent2 file-kt">    ├── GetFinanceSummary.kt</div>
+        <div class="indent2 file-kt">    └── TogglePayment.kt</div>
+      </div>
+      <div>
+        <div class="dir highlight">ui/</div>
+        <div class="indent1 dir highlight">├── theme/</div>
+        <div class="indent2 file-kt highlight">│   ├── MaestroTheme.kt</div>
+        <div class="indent2 file-kt highlight">│   ├── Color.kt</div>
+        <div class="indent2 file-kt highlight">│   └── Typography.kt</div>
+        <div class="indent1 dir highlight">├── screen/</div>
+        <div class="indent2 file-kt highlight">│   ├── DashboardScreen.kt</div>
+        <div class="indent2 file-kt highlight">│   ├── StudentsScreen.kt</div>
+        <div class="indent2 file-kt highlight">│   ├── ClassesScreen.kt</div>
+        <div class="indent2 file-kt highlight">│   ├── FinancesScreen.kt</div>
+        <div class="indent2 file-kt highlight">│   ├── TasksScreen.kt</div>
+        <div class="indent2 file-kt highlight">│   ├── AgendaScreen.kt</div>
+        <div class="indent2 file-kt highlight">│   ├── MetronomeScreen.kt</div>
+        <div class="indent2 file-kt highlight">│   └── LevelGuideScreen.kt</div>
+        <div class="indent1 dir">└── component/</div>
+        <div class="indent2 file-kt">    ├── StatCard.kt</div>
+        <div class="indent2 file-kt">    └── StudentCard.kt</div>
+      </div>
+      <div>
+        <div class="dir">viewmodel/</div>
+        <div class="indent1 file-kt">├── DashboardViewModel.kt</div>
+        <div class="indent1 file-kt">├── StudentsViewModel.kt</div>
+        <div class="indent1 file-kt">└── MetronomeViewModel.kt</div>
+        <br>
+        <div class="dir">network/</div>
+        <div class="indent1 file-kt">├── ApiClient.kt</div>
+        <div class="indent1 file-kt">├── AuthApi.kt</div>
+        <div class="indent1 file-kt">└── dto/</div>
+        <div class="indent2 file-kt">    └── StudentDto.kt</div>
+        <br>
+        <div class="dir">navigation/</div>
+        <div class="indent1 file-kt">└── AppNavigation.kt</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPOSE APP -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-icon">🌐</span>
+      <span class="module-name">composeApp/</span>
+      <span class="module-tag badge-web">Web + Android</span>
+    </div>
+    <div class="tree">
+      <div class="dir">composeApp/</div>
+      <div class="indent1 file-gradle">├── build.gradle.kts</div>
+      <div class="indent1 dir">├── wasmJsMain/   <span class="comment">← Web entry</span></div>
+      <div class="indent2 file-kt">│   └── Main.kt</div>
+      <div class="indent2 file">│   └── index.html</div>
+      <div class="indent1 dir">├── androidMain/  <span class="comment">← Android entry</span></div>
+      <div class="indent2 file-kt">│   └── MainActivity.kt</div>
+      <div class="indent1 dir">└── commonMain/   <span class="comment">← glue mínimo</span></div>
+      <div class="indent2 file-kt">    └── App.kt  <span class="comment">← llama shared UI</span></div>
+    </div>
+  </div>
+
+  <!-- iOS APP -->
+  <div class="module">
+    <div class="module-header">
+      <span class="module-icon">📱</span>
+      <span class="module-name">iosApp/</span>
+      <span class="module-tag badge-mobile">iOS entry point</span>
+    </div>
+    <div class="tree">
+      <div class="dir">iosApp/</div>
+      <div class="indent1 dir">└── iosApp/</div>
+      <div class="indent2 file">    ├── ContentView.swift</div>
+      <div class="indent2 file">    └── iOSApp.swift</div>
+      <br>
+      <div class="comment indent1">← Solo el entry point Swift.</div>
+      <div class="comment indent1">   Toda la UI viene de shared/.</div>
+      <div class="comment indent1">   Requiere Xcode para compilar.</div>
+    </div>
+  </div>
+
+  <!-- NOTE -->
+  <div class="note">
+    <strong>Principio clave:</strong> <code>composeApp/</code> e <code>iosApp/</code> son cascarones mínimos — solo el entry point de cada plataforma. Toda la UI real, los ViewModels, la lógica de negocio y el cliente de red viven en <strong>shared/commonMain</strong>, y se compilan a Wasm (web), bytecode Android o binario iOS según el target. El backend en <strong>server/</strong> es un proceso Kotlin/JVM independiente que corre en Railway.
+  </div>
+
+</div>
+
+</body>
+</html>

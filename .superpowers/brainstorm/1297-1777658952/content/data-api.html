@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maestro — Datos y API</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: sans-serif; background: #0f1117; color: #e0e0e0; padding: 28px; }
+  h2 { color: #C9A84C; font-size: 17px; letter-spacing: 1px; margin-bottom: 6px; }
+  .subtitle { color: #888; font-size: 13px; margin-bottom: 28px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 960px; margin: 0 auto; }
+  .full { grid-column: 1 / -1; }
+
+  .card {
+    background: #16181f;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title { font-size: 13px; font-weight: 700; }
+  .card-body { padding: 14px 16px; }
+
+  /* DB Table */
+  .db-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .db-table th { text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #555; padding: 0 8px 8px 0; font-weight: 700; }
+  .db-table td { padding: 5px 8px 5px 0; border-top: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+  .col-name { color: #60A5FA; font-family: monospace; }
+  .col-type { color: #A78BFA; font-family: monospace; font-size: 10.5px; }
+  .col-note { color: #555; font-size: 10.5px; font-style: italic; }
+  .pk   { background: rgba(201,168,76,0.12); color: #C9A84C; font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.5px; }
+  .fk   { background: rgba(96,165,250,0.12); color: #60A5FA; font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 3px; }
+  .idx  { background: rgba(167,139,250,0.12);color: #A78BFA; font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 3px; }
+
+  /* API routes */
+  .route { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-top: 1px solid rgba(255,255,255,0.04); font-size: 11.5px; }
+  .route:first-child { border-top: none; }
+  .method { font-family: monospace; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; min-width: 46px; text-align: center; flex-shrink: 0; }
+  .get    { background: rgba(45,80,22,0.3);   color: #6DBF5E; }
+  .post   { background: rgba(59,130,246,0.2); color: #60A5FA; }
+  .put    { background: rgba(201,168,76,0.2); color: #C9A84C; }
+  .patch  { background: rgba(251,191,36,0.15);color: #FBBF24; }
+  .delete { background: rgba(184,92,56,0.2);  color: #E07050; }
+  .route-path { font-family: monospace; color: #94A3B8; flex: 1; }
+  .route-desc { color: #555; font-size: 10.5px; }
+
+  /* Auth flow */
+  .flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+  .flow-step {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    line-height: 1.5;
+    flex: 1;
+    min-width: 120px;
+  }
+  .flow-step strong { color: #C9A84C; display: block; margin-bottom: 3px; font-size: 12px; }
+  .flow-arrow { color: #444; font-size: 18px; padding: 0 6px; flex-shrink: 0; }
+
+  .tag { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; margin-bottom: 10px; }
+  .tag-green  { background: rgba(45,80,22,0.3);   color: #6DBF5E; }
+  .tag-blue   { background: rgba(59,130,246,0.2); color: #60A5FA; }
+  .tag-purple { background: rgba(167,139,250,0.2);color: #A78BFA; }
+  .tag-gold   { background: rgba(201,168,76,0.2); color: #C9A84C; }
+  .tag-terra  { background: rgba(184,92,56,0.2);  color: #E07050; }
+
+  code { font-family: monospace; font-size: 10.5px; color: #A78BFA; }
+
+  .note {
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-size: 11.5px;
+    color: #aaa;
+    line-height: 1.6;
+  }
+  .note strong { color: #C9A84C; }
+</style>
+</head>
+<body>
+
+<h2>Modelo de datos y API REST — Maestro</h2>
+<p class="subtitle">Sección 3 de 4 · PostgreSQL · Ktor · Multi-tenant por teacher_id</p>
+
+<div class="grid">
+
+  <!-- teachers -->
+  <div class="card">
+    <div class="card-header">
+      <span class="tag tag-gold">teachers</span>
+      <span class="card-title">Tabla de maestros (usuarios)</span>
+    </div>
+    <div class="card-body">
+      <table class="db-table">
+        <tr><th>Columna</th><th>Tipo</th><th>Notas</th></tr>
+        <tr><td class="col-name">id <span class="pk">PK</span></td><td class="col-type">UUID</td><td class="col-note">generado automáticamente</td></tr>
+        <tr><td class="col-name">email <span class="idx">UNQ</span></td><td class="col-type">VARCHAR(255)</td><td class="col-note">login único</td></tr>
+        <tr><td class="col-name">password_hash</td><td class="col-type">VARCHAR(72)</td><td class="col-note">bcrypt, nunca texto plano</td></tr>
+        <tr><td class="col-name">name</td><td class="col-type">VARCHAR(150)</td><td class="col-note">nombre del maestro</td></tr>
+        <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-note">registro</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- students -->
+  <div class="card">
+    <div class="card-header">
+      <span class="tag tag-blue">students</span>
+      <span class="card-title">Estudiantes del maestro</span>
+    </div>
+    <div class="card-body">
+      <table class="db-table">
+        <tr><th>Columna</th><th>Tipo</th><th>Notas</th></tr>
+        <tr><td class="col-name">id <span class="pk">PK</span></td><td class="col-type">UUID</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">teacher_id <span class="fk">FK</span></td><td class="col-type">UUID</td><td class="col-note">→ teachers · multi-tenant</td></tr>
+        <tr><td class="col-name">name</td><td class="col-type">VARCHAR(150)</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">age</td><td class="col-type">INT</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">level</td><td class="col-type">VARCHAR(20)</td><td class="col-note">Inicial / Elemental / Intermedio / Avanzado</td></tr>
+        <tr><td class="col-name">phone</td><td class="col-type">VARCHAR(30)</td><td class="col-note">nullable</td></tr>
+        <tr><td class="col-name">email</td><td class="col-type">VARCHAR(255)</td><td class="col-note">nullable</td></tr>
+        <tr><td class="col-name">monthly_fee</td><td class="col-type">DECIMAL(12,2)</td><td class="col-note">tarifa mensual</td></tr>
+        <tr><td class="col-name">color</td><td class="col-type">VARCHAR(9)</td><td class="col-note">color hex de la tarjeta</td></tr>
+        <tr><td class="col-name">notes</td><td class="col-type">TEXT</td><td class="col-note">notas pedagógicas</td></tr>
+        <tr><td class="col-name">join_date</td><td class="col-type">DATE</td><td class="col-note"></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- class_entries -->
+  <div class="card">
+    <div class="card-header">
+      <span class="tag tag-terra">class_entries</span>
+      <span class="card-title">Registro de clases</span>
+    </div>
+    <div class="card-body">
+      <table class="db-table">
+        <tr><th>Columna</th><th>Tipo</th><th>Notas</th></tr>
+        <tr><td class="col-name">id <span class="pk">PK</span></td><td class="col-type">UUID</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">teacher_id <span class="fk">FK</span></td><td class="col-type">UUID</td><td class="col-note">→ teachers</td></tr>
+        <tr><td class="col-name">student_id <span class="fk">FK</span></td><td class="col-type">UUID</td><td class="col-note">→ students</td></tr>
+        <tr><td class="col-name">date</td><td class="col-type">DATE</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">topic</td><td class="col-type">TEXT</td><td class="col-note">tema trabajado en clase</td></tr>
+        <tr><td class="col-name">paid</td><td class="col-type">BOOLEAN</td><td class="col-note">estado de pago</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- events + tasks -->
+  <div class="card">
+    <div class="card-header">
+      <span class="tag tag-purple">events + tasks</span>
+      <span class="card-title">Agenda y tareas</span>
+    </div>
+    <div class="card-body">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:8px;">music_events</div>
+      <table class="db-table" style="margin-bottom:16px;">
+        <tr><th>Columna</th><th>Tipo</th><th>Notas</th></tr>
+        <tr><td class="col-name">id <span class="pk">PK</span></td><td class="col-type">UUID</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">teacher_id <span class="fk">FK</span></td><td class="col-type">UUID</td><td class="col-note">→ teachers</td></tr>
+        <tr><td class="col-name">title</td><td class="col-type">VARCHAR(200)</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">date</td><td class="col-type">DATE</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">type</td><td class="col-type">VARCHAR(20)</td><td class="col-note">recital / masterclass / evaluacion / otro</td></tr>
+        <tr><td class="col-name">description</td><td class="col-type">TEXT</td><td class="col-note">nullable</td></tr>
+      </table>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:8px;">tasks</div>
+      <table class="db-table">
+        <tr><th>Columna</th><th>Tipo</th><th>Notas</th></tr>
+        <tr><td class="col-name">id <span class="pk">PK</span></td><td class="col-type">UUID</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">teacher_id <span class="fk">FK</span></td><td class="col-note">→ teachers</td></tr>
+        <tr><td class="col-name">text</td><td class="col-type">TEXT</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">done</td><td class="col-type">BOOLEAN</td><td class="col-note"></td></tr>
+        <tr><td class="col-name">priority</td><td class="col-type">VARCHAR(10)</td><td class="col-note">alta / media / baja</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- API Routes -->
+  <div class="card full">
+    <div class="card-header">
+      <span class="tag tag-green">API REST</span>
+      <span class="card-title">Endpoints Ktor — todos requieren JWT excepto /auth</span>
+    </div>
+    <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;padding:8px 0 4px;">Auth</div>
+        <div class="route"><span class="method post">POST</span><span class="route-path">/auth/register</span><span class="route-desc">crear cuenta</span></div>
+        <div class="route"><span class="method post">POST</span><span class="route-path">/auth/login</span><span class="route-desc">→ JWT token</span></div>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;padding:14px 0 4px;">Estudiantes</div>
+        <div class="route"><span class="method get">GET</span><span class="route-path">/students</span><span class="route-desc">listar los míos</span></div>
+        <div class="route"><span class="method post">POST</span><span class="route-path">/students</span><span class="route-desc">crear</span></div>
+        <div class="route"><span class="method put">PUT</span><span class="route-path">/students/{id}</span><span class="route-desc">editar</span></div>
+        <div class="route"><span class="method delete">DEL</span><span class="route-path">/students/{id}</span><span class="route-desc">eliminar</span></div>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;padding:14px 0 4px;">Clases</div>
+        <div class="route"><span class="method get">GET</span><span class="route-path">/classes</span><span class="route-desc">con filtro ?month=</span></div>
+        <div class="route"><span class="method post">POST</span><span class="route-path">/classes</span><span class="route-desc">registrar clase</span></div>
+        <div class="route"><span class="method patch">PATCH</span><span class="route-path">/classes/{id}/paid</span><span class="route-desc">toggle pago</span></div>
+        <div class="route"><span class="method delete">DEL</span><span class="route-path">/classes/{id}</span><span class="route-desc">eliminar</span></div>
+      </div>
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;padding:8px 0 4px;">Eventos</div>
+        <div class="route"><span class="method get">GET</span><span class="route-path">/events</span><span class="route-desc">próximos eventos</span></div>
+        <div class="route"><span class="method post">POST</span><span class="route-path">/events</span><span class="route-desc">crear evento</span></div>
+        <div class="route"><span class="method put">PUT</span><span class="route-path">/events/{id}</span><span class="route-desc">editar</span></div>
+        <div class="route"><span class="method delete">DEL</span><span class="route-path">/events/{id}</span><span class="route-desc">eliminar</span></div>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;padding:14px 0 4px;">Tareas</div>
+        <div class="route"><span class="method get">GET</span><span class="route-path">/tasks</span><span class="route-desc">todas las tareas</span></div>
+        <div class="route"><span class="method post">POST</span><span class="route-path">/tasks</span><span class="route-desc">crear</span></div>
+        <div class="route"><span class="method patch">PATCH</span><span class="route-path">/tasks/{id}/done</span><span class="route-desc">toggle completar</span></div>
+        <div class="route"><span class="method delete">DEL</span><span class="route-path">/tasks/{id}</span><span class="route-desc">eliminar</span></div>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#555;padding:14px 0 4px;">Finanzas (calculado)</div>
+        <div class="route"><span class="method get">GET</span><span class="route-path">/finances/summary</span><span class="route-desc">?month=&year= → resumen</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth flow -->
+  <div class="card full">
+    <div class="card-header">
+      <span class="tag tag-gold">Flujo de auth</span>
+      <span class="card-title">Email + contraseña → JWT · Sin sesiones en servidor</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step">
+          <strong>1. Registro</strong>
+          <code>POST /auth/register</code><br>
+          email + password →<br>
+          bcrypt hash → DB
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <strong>2. Login</strong>
+          <code>POST /auth/login</code><br>
+          verifica bcrypt →<br>
+          genera JWT (7 días)
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <strong>3. Requests</strong>
+          <code>Authorization: Bearer &lt;jwt&gt;</code><br>
+          Ktor extrae <code>teacherId</code><br>
+          del claim del token
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <strong>4. Multi-tenant</strong>
+          Todas las queries filtran<br>
+          <code>WHERE teacher_id = ?</code><br>
+          Un maestro nunca ve datos de otro
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note full">
+    <strong>El metrónomo no usa API</strong> — es puramente local en el cliente (Web Audio API en Wasm, AudioTrack en Android). La <strong>Guía de Niveles</strong> también es estática, hardcodeada en <code>commonMain</code> igual que en el prototipo. Esto mantiene el backend simple y sin endpoints innecesarios.
+  </div>
+
+</div>
+</body>
+</html>

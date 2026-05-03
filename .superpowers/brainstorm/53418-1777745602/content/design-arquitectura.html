@@ -1,0 +1,72 @@
+<h2>Diseño — Arquitectura del Proyecto</h2>
+<p class="subtitle">Sección 1 de 4: Estructura, módulos y stack tecnológico</p>
+
+<div class="section">
+  <h3>Estructura del monorepo</h3>
+  <div style="font-family:monospace;font-size:13px;background:#1e1e2e;color:#cdd6f4;padding:20px;border-radius:12px;line-height:1.9">
+    maestro/<br>
+    ├── <span style="color:#89b4fa;font-weight:700">composeApp/</span><br>
+    │&nbsp;&nbsp; ├── src/<span style="color:#cba6f7">commonMain</span>/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086"># UI compartida + ViewModels</span><br>
+    │&nbsp;&nbsp; ├── src/<span style="color:#a6e3a1">androidMain</span>/&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086"># Entry point Android</span><br>
+    │&nbsp;&nbsp; └── src/<span style="color:#f9e2af">wasmJsMain</span>/&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086"># Entry point Web (Wasm)</span><br>
+    ├── <span style="color:#a6e3a1;font-weight:700">server/</span><br>
+    │&nbsp;&nbsp; └── src/main/kotlin/<br>
+    │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── plugins/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086"># Auth, Routing, CORS, DB</span><br>
+    │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── routes/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086"># Endpoints REST</span><br>
+    │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── models/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086"># Entidades Exposed (DB)</span><br>
+    │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── services/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086"># Lógica de negocio</span><br>
+    ├── <span style="color:#f9e2af;font-weight:700">shared/</span><br>
+    │&nbsp;&nbsp; └── src/<span style="color:#cba6f7">commonMain</span>/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086"># Student, ClassEntry, Task, Event (DTOs)</span><br>
+    ├── gradle/libs.versions.toml<br>
+    ├── build.gradle.kts<br>
+    └── settings.gradle.kts
+  </div>
+</div>
+
+<div class="section">
+  <h3>Stack tecnológico</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;border-left:3px solid #89b4fa">
+      <div class="label" style="color:#89b4fa;margin-bottom:10px">Frontend (composeApp)</div>
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8">
+        Kotlin 2.1.x<br>
+        Compose Multiplatform 1.8.x<br>
+        Kotlin/Wasm (Web target)<br>
+        Ktor Client (HTTP)<br>
+        kotlinx.serialization<br>
+        Lifecycle ViewModel (CMP)<br>
+        Navigation 3 (CMP)
+      </div>
+    </div>
+
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;border-left:3px solid #a6e3a1">
+      <div class="label" style="color:#a6e3a1;margin-bottom:10px">Backend (server)</div>
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8">
+        Ktor 3.x<br>
+        Exposed ORM<br>
+        H2 (dev local)<br>
+        PostgreSQL (Railway / prod)<br>
+        JWT (auth)<br>
+        BCrypt (passwords)<br>
+        kotlinx.serialization
+      </div>
+    </div>
+
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;border-left:3px solid #f9e2af;grid-column:span 2">
+      <div class="label" style="color:#f9e2af;margin-bottom:10px">Compartido (shared)</div>
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8">
+        Data classes: Student, ClassEntry, Task, Event, User<br>
+        Enums: Level, Priority, EventType<br>
+        Request/Response DTOs para la API<br>
+        Validaciones compartidas
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="background:#313244;border-radius:12px;padding:16px;margin-top:8px;border-left:3px solid #cba6f7">
+  <div class="label" style="color:#cba6f7">¿Por qué Kotlin/Wasm para Web?</div>
+  <p style="font-size:13px;color:#cdd6f4;margin:8px 0 0">Wasm es el futuro oficial de Compose para Web — mejor rendimiento que JS, soporte nativo de Compose, y ya es estable en CMP 1.7+. Kotlin/JS (la alternativa) quedó deprecado para UI con Compose.</p>
+</div>

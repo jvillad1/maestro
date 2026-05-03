@@ -1,0 +1,60 @@
+<h2>Enfoques de arquitectura</h2>
+<p class="subtitle">¿Cómo estructuramos el proyecto Maestro?</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Monorepo con módulo compartido ⭐ Recomendada</h3>
+      <p>Un solo repositorio con tres módulos Gradle coordinados.</p>
+      <div style="font-family:monospace;font-size:12px;background:#1e1e2e;color:#cdd6f4;padding:12px;border-radius:8px;margin-top:10px;line-height:1.7">
+        maestro/<br>
+        ├── <span style="color:#89b4fa">composeApp/</span>   <span style="color:#6c7086"># UI Web + Android (CMP)</span><br>
+        ├── <span style="color:#a6e3a1">server/</span>       <span style="color:#6c7086"># Ktor backend</span><br>
+        ├── <span style="color:#f9e2af">shared/</span>       <span style="color:#6c7086"># Modelos + DTOs compartidos</span><br>
+        └── build.gradle.kts
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <span style="background:#a6e3a1;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✓ DTOs compartidos cliente-servidor</span>
+        <span style="background:#a6e3a1;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✓ Un solo PR por feature</span>
+        <span style="background:#a6e3a1;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✓ Tipado end-to-end en Kotlin</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Dos repositorios separados</h3>
+      <p>Frontend CMP en un repo, Ktor backend en otro.</p>
+      <div style="font-family:monospace;font-size:12px;background:#1e1e2e;color:#cdd6f4;padding:12px;border-radius:8px;margin-top:10px;line-height:1.7">
+        maestro-frontend/   <span style="color:#6c7086"># repo 1 (CMP)</span><br>
+        maestro-backend/    <span style="color:#6c7086"># repo 2 (Ktor)</span>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <span style="background:#a6e3a1;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✓ Deploys independientes</span>
+        <span style="background:#f38ba8;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✗ Modelos duplicados</span>
+        <span style="background:#f38ba8;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✗ Dos PRs por feature</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Frontend delgado + Backend pesado</h3>
+      <p>Toda la lógica vive en Ktor, el CMP solo renderiza lo que recibe.</p>
+      <div style="font-family:monospace;font-size:12px;background:#1e1e2e;color:#cdd6f4;padding:12px;border-radius:8px;margin-top:10px;line-height:1.7">
+        composeApp/  <span style="color:#6c7086"># Solo UI, sin lógica</span><br>
+        server/      <span style="color:#6c7086"># Lógica + datos + estado</span>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <span style="background:#a6e3a1;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✓ Frontend simple</span>
+        <span style="background:#f38ba8;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✗ Sin offline</span>
+        <span style="background:#f38ba8;color:#1e1e2e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">✗ Latencia en cada acción</span>
+      </div>
+    </div>
+  </div>
+
+</div>

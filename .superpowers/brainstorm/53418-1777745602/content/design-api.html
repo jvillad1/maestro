@@ -1,0 +1,59 @@
+<h2>Diseño — API REST</h2>
+<p class="subtitle">Sección 3 de 4: Endpoints del backend Ktor</p>
+
+<div class="section">
+  <h3>Autenticación</h3>
+  <div style="background:#1e1e2e;border-radius:12px;padding:16px;font-family:monospace;font-size:13px;line-height:2">
+    <span style="color:#a6e3a1">POST</span> /api/auth/register&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ { token, user }</span><br>
+    <span style="color:#a6e3a1">POST</span> /api/auth/login&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ { token, user }</span>
+  </div>
+  <p style="font-size:12px;color:#6c7086;margin-top:8px">Todos los endpoints siguientes requieren <code style="background:#1e1e2e;padding:1px 6px;border-radius:3px;color:#f9e2af">Authorization: Bearer &lt;token&gt;</code></p>
+</div>
+
+<div class="section">
+  <h3>Estudiantes</h3>
+  <div style="background:#1e1e2e;border-radius:12px;padding:16px;font-family:monospace;font-size:13px;line-height:2">
+    <span style="color:#89b4fa">GET&nbsp;</span> /api/students&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ List&lt;Student&gt;</span><br>
+    <span style="color:#a6e3a1">POST</span> /api/students&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ Student</span><br>
+    <span style="color:#89b4fa">GET&nbsp;</span> /api/students/{id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ Student</span><br>
+    <span style="color:#f9e2af">PUT&nbsp;</span> /api/students/{id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ Student</span><br>
+    <span style="color:#f38ba8">DEL&nbsp;</span> /api/students/{id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ 204</span>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Clases</h3>
+  <div style="background:#1e1e2e;border-radius:12px;padding:16px;font-family:monospace;font-size:13px;line-height:2">
+    <span style="color:#89b4fa">GET&nbsp;</span> /api/classes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ List&lt;ClassEntry&gt;</span><br>
+    <span style="color:#89b4fa">GET&nbsp;</span> /api/classes?month=2026-05&nbsp;<span style="color:#6c7086">→ List&lt;ClassEntry&gt; (filtrado)</span><br>
+    <span style="color:#a6e3a1">POST</span> /api/classes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ ClassEntry</span><br>
+    <span style="color:#f9e2af">PUT&nbsp;</span> /api/classes/{id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ ClassEntry (toggle paid)</span><br>
+    <span style="color:#f38ba8">DEL&nbsp;</span> /api/classes/{id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ 204</span>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+  <div>
+    <h3>Tareas</h3>
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;font-family:monospace;font-size:13px;line-height:2">
+      <span style="color:#89b4fa">GET&nbsp;</span> /api/tasks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ List&lt;Task&gt;</span><br>
+      <span style="color:#a6e3a1">POST</span> /api/tasks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ Task</span><br>
+      <span style="color:#f9e2af">PUT&nbsp;</span> /api/tasks/{id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ Task</span><br>
+      <span style="color:#f38ba8">DEL&nbsp;</span> /api/tasks/{id}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ 204</span>
+    </div>
+  </div>
+  <div>
+    <h3>Eventos</h3>
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;font-family:monospace;font-size:13px;line-height:2">
+      <span style="color:#89b4fa">GET&nbsp;</span> /api/events&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ List&lt;Event&gt;</span><br>
+      <span style="color:#a6e3a1">POST</span> /api/events&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ Event</span><br>
+      <span style="color:#f9e2af">PUT&nbsp;</span> /api/events/{id}&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ Event</span><br>
+      <span style="color:#f38ba8">DEL&nbsp;</span> /api/events/{id}&nbsp;&nbsp;&nbsp;<span style="color:#6c7086">→ 204</span>
+    </div>
+  </div>
+</div>
+
+<div style="background:#313244;border-radius:12px;padding:14px;margin-top:16px;border-left:3px solid #a6e3a1">
+  <div class="label" style="color:#a6e3a1">Seguridad</div>
+  <p style="font-size:13px;color:#cdd6f4;margin:6px 0 0">Cada endpoint valida que el recurso solicitado pertenezca al <code style="background:#1e1e2e;padding:1px 5px;border-radius:3px">userId</code> del token. Un profe nunca puede leer ni modificar datos de otro.</p>
+</div>

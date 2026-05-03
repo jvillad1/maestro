@@ -1,0 +1,104 @@
+<h2>Diseño — Modelos de datos</h2>
+<p class="subtitle">Sección 2 de 4: Entidades del dominio (módulo shared)</p>
+
+<div class="section">
+  <h3>Entidades principales</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;border-top:3px solid #cba6f7">
+      <div class="label" style="color:#cba6f7;margin-bottom:10px">User</div>
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8">
+        id: Long<br>
+        email: String<br>
+        name: String<br>
+        <span style="color:#6c7086">passwordHash: String&nbsp;&nbsp;<em># solo servidor</em></span><br>
+        createdAt: String
+      </div>
+    </div>
+
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;border-top:3px solid #89b4fa">
+      <div class="label" style="color:#89b4fa;margin-bottom:10px">Student</div>
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8">
+        id: Long<br>
+        <span style="color:#f9e2af">userId: Long&nbsp;&nbsp;<em># FK → User</em></span><br>
+        name: String<br>
+        age: Int<br>
+        level: Level<br>
+        phone: String<br>
+        email: String<br>
+        monthlyFee: Long&nbsp;&nbsp;<em style="color:#6c7086"># COP</em><br>
+        notes: String<br>
+        joinDate: String<br>
+        color: String&nbsp;&nbsp;<em style="color:#6c7086"># hex, ej "#C9A84C"</em>
+      </div>
+    </div>
+
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;border-top:3px solid #a6e3a1">
+      <div class="label" style="color:#a6e3a1;margin-bottom:10px">ClassEntry</div>
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8">
+        id: Long<br>
+        <span style="color:#f9e2af">studentId: Long&nbsp;&nbsp;<em># FK → Student</em></span><br>
+        date: String&nbsp;&nbsp;<em style="color:#6c7086"># ISO: "2026-05-02"</em><br>
+        topic: String<br>
+        paid: Boolean
+      </div>
+    </div>
+
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;border-top:3px solid #fab387">
+      <div class="label" style="color:#fab387;margin-bottom:10px">Task</div>
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8">
+        id: Long<br>
+        <span style="color:#f9e2af">userId: Long&nbsp;&nbsp;<em># FK → User</em></span><br>
+        text: String<br>
+        priority: Priority<br>
+        done: Boolean
+      </div>
+    </div>
+
+    <div style="background:#1e1e2e;border-radius:12px;padding:16px;border-top:3px solid #f38ba8;grid-column:span 2">
+      <div class="label" style="color:#f38ba8;margin-bottom:10px">Event</div>
+      <div style="font-family:monospace;font-size:12px;color:#cdd6f4;line-height:1.8;display:grid;grid-template-columns:1fr 1fr;gap:0 32px">
+        <span>id: Long</span>
+        <span><span style="color:#f9e2af">userId: Long&nbsp;&nbsp;<em># FK → User</em></span></span>
+        <span>title: String</span>
+        <span>date: String</span>
+        <span>type: EventType</span>
+        <span>description: String</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <h3>Enumeraciones</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+
+    <div style="background:#1e1e2e;border-radius:10px;padding:14px">
+      <div class="label" style="color:#89b4fa;margin-bottom:8px">Level</div>
+      <div style="font-family:monospace;font-size:12px;color:#a6e3a1;line-height:1.8">
+        INICIAL<br>ELEMENTAL<br>INTERMEDIO<br>AVANZADO
+      </div>
+    </div>
+
+    <div style="background:#1e1e2e;border-radius:10px;padding:14px">
+      <div class="label" style="color:#fab387;margin-bottom:8px">Priority</div>
+      <div style="font-family:monospace;font-size:12px;color:#a6e3a1;line-height:1.8">
+        ALTA<br>MEDIA<br>BAJA
+      </div>
+    </div>
+
+    <div style="background:#1e1e2e;border-radius:10px;padding:14px">
+      <div class="label" style="color:#f38ba8;margin-bottom:8px">EventType</div>
+      <div style="font-family:monospace;font-size:12px;color:#a6e3a1;line-height:1.8">
+        RECITAL<br>MASTERCLASS<br>EVALUACION<br>OTRO
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="background:#313244;border-radius:12px;padding:14px;border-left:3px solid #f9e2af">
+  <div class="label" style="color:#f9e2af">Nota sobre userId</div>
+  <p style="font-size:13px;color:#cdd6f4;margin:6px 0 0">Cada entidad lleva <code style="background:#1e1e2e;padding:1px 5px;border-radius:3px">userId</code> como FK. Esto prepara el modelo para la expansión a academia multi-profe sin cambios disruptivos al schema.</p>
+</div>

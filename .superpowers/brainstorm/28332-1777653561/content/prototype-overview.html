@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maestro — Prototipo Actual</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', 'Times New Roman', serif; background: #1a1a2e; color: #eee; padding: 24px; }
+
+  h2 { font-family: sans-serif; font-size: 18px; color: #C9A84C; margin-bottom: 6px; letter-spacing: 1px; }
+  .subtitle { font-family: sans-serif; font-size: 13px; color: #aaa; margin-bottom: 24px; }
+
+  /* ── App Frame ── */
+  .app-frame {
+    max-width: 960px;
+    margin: 0 auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* Header */
+  .app-header {
+    background: #2C1810;
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo-circle {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, #C9A84C, #E8C87A);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; margin-right: 12px;
+  }
+  .logo-wrap { display: flex; align-items: center; }
+  .logo-title { font-family: sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 2px; color: #FDFAF5; }
+  .logo-sub { font-family: sans-serif; font-size: 9px; color: rgba(255,255,255,0.5); letter-spacing: 3px; text-transform: uppercase; }
+  .water-btn {
+    background: rgba(201,168,76,0.15);
+    border: 1px solid #C9A84C;
+    color: #C9A84C;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: sans-serif;
+    font-size: 12px;
+  }
+
+  /* Nav */
+  .app-nav {
+    background: #FDFAF5;
+    border-bottom: 2px solid #F0E6C8;
+    display: flex;
+    overflow-x: auto;
+    padding: 0 12px;
+  }
+  .nav-tab {
+    padding: 12px 14px;
+    font-family: sans-serif;
+    font-size: 12px;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    color: #8B7355;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .nav-tab.active {
+    color: #B85C38;
+    border-bottom-color: #B85C38;
+    font-weight: 700;
+  }
+
+  /* Content area */
+  .app-content {
+    background: #F5F0E8;
+    padding: 20px;
+  }
+
+  /* Motivational card */
+  .phrase-card {
+    background: linear-gradient(135deg, #2C1810, #4A2C1A);
+    color: #FDFAF5;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .phrase-card::after {
+    content: '♫';
+    position: absolute;
+    right: 16px; top: 8px;
+    font-size: 100px;
+    opacity: 0.05;
+    font-family: serif;
+  }
+  .phrase-label { font-family: sans-serif; font-size: 10px; letter-spacing: 3px; color: #C9A84C; text-transform: uppercase; margin-bottom: 10px; }
+  .phrase-text { font-size: 17px; font-style: italic; line-height: 1.6; margin-bottom: 10px; max-width: 560px; }
+  .phrase-author { font-family: sans-serif; font-size: 12px; color: #C9A84C; }
+  .phrase-dots { display: flex; gap: 5px; margin-top: 14px; }
+  .dot { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.25); }
+  .dot.active { width: 22px; background: #C9A84C; }
+  .dot:not(.active) { width: 6px; }
+
+  /* Stats row */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .stat-icon { font-size: 20px; margin-bottom: 6px; }
+  .stat-value { font-family: sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 2px; }
+  .stat-label { font-family: sans-serif; font-size: 10px; color: #8B7355; }
+
+  /* Two-col */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  /* Panel */
+  .panel {
+    background: #FDFAF5;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #F0E6C8;
+  }
+  .panel-title {
+    font-family: sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #2C1810;
+    margin-bottom: 12px;
+  }
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #F0E6C8;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .dot-color { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .item-name { font-family: sans-serif; font-size: 12px; font-weight: 600; color: #2C1810; }
+  .item-sub { font-family: sans-serif; font-size: 10px; color: #8B7355; }
+  .badge-paid { font-family: sans-serif; font-size: 10px; font-weight: 700; color: #2D5016; margin-left: auto; }
+  .badge-pend { font-family: sans-serif; font-size: 10px; font-weight: 700; color: #B85C38; margin-left: auto; }
+
+  .event-date {
+    background: #B85C38;
+    border-radius: 7px;
+    padding: 5px 8px;
+    text-align: center;
+    min-width: 44px;
+  }
+  .event-day { font-size: 11px; color: white; font-family: sans-serif; font-weight: 700; }
+  .event-mon { font-size: 9px; color: rgba(255,255,255,0.75); font-family: sans-serif; }
+  .event-green { background: #2D5016; }
+  .event-purple { background: #7B68EE; }
+
+  /* Bottom panels */
+  .bottom-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .task-item { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #F0E6C8; }
+  .task-check { width: 14px; height: 14px; border: 2px solid #C9A84C; border-radius: 3px; flex-shrink: 0; }
+  .task-check.done { background: #2D5016; border-color: #2D5016; }
+  .task-text { font-family: sans-serif; font-size: 11px; color: #2C1810; }
+  .task-text.done { text-decoration: line-through; color: #8B7355; }
+  .priority-alta { font-family: sans-serif; font-size: 9px; color: #B85C38; font-weight: 700; margin-left: auto; text-transform: uppercase; }
+  .priority-media { font-family: sans-serif; font-size: 9px; color: #C9A84C; font-weight: 700; margin-left: auto; text-transform: uppercase; }
+  .priority-baja { font-family: sans-serif; font-size: 9px; color: #8B7355; font-weight: 700; margin-left: auto; text-transform: uppercase; }
+
+  /* Section label */
+  .section-heading {
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #C9A84C;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 28px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(201,168,76,0.3);
+  }
+
+  /* Metronome preview */
+  .metro-panel {
+    background: #2C1810;
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    color: #FDFAF5;
+  }
+  .metro-bpm { font-family: sans-serif; font-size: 52px; font-weight: 700; color: #C9A84C; line-height: 1; }
+  .metro-label { font-family: sans-serif; font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 2px; margin-bottom: 16px; }
+  .metro-beats { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
+  .beat { width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(201,168,76,0.4); display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.4); }
+  .beat.active { background: #C9A84C; color: #2C1810; border-color: #C9A84C; }
+  .beat.accent { background: #B85C38; color: white; border-color: #B85C38; }
+  .metro-btn { background: #C9A84C; border: none; color: #2C1810; width: 56px; height: 56px; border-radius: 50%; font-size: 22px; cursor: pointer; font-weight: 700; margin-top: 12px; }
+
+  /* Student card */
+  .student-card {
+    background: #FDFAF5;
+    border-radius: 12px;
+    padding: 16px;
+    border-left: 4px solid;
+    border-top: 1px solid #F0E6C8;
+    border-right: 1px solid #F0E6C8;
+    border-bottom: 1px solid #F0E6C8;
+  }
+  .student-name { font-family: sans-serif; font-weight: 700; font-size: 14px; color: #2C1810; }
+  .student-level { font-family: sans-serif; font-size: 11px; color: #8B7355; margin-top: 2px; }
+  .student-fee { font-family: sans-serif; font-size: 13px; font-weight: 700; color: #2D5016; margin-top: 8px; }
+
+  .students-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+  .level-card {
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .level-name { font-family: sans-serif; font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+  .level-dur { font-family: sans-serif; font-size: 10px; color: #8B7355; margin-bottom: 10px; }
+  .level-obj { font-family: sans-serif; font-size: 11px; color: #2C1810; margin-bottom: 3px; }
+  .level-obj::before { content: '• '; color: #C9A84C; }
+
+  .levels-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  .finance-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid #F0E6C8;
+    font-family: sans-serif;
+  }
+  .finance-name { font-size: 13px; color: #2C1810; font-weight: 600; }
+  .finance-amt { font-size: 13px; font-weight: 700; }
+  .finance-paid { color: #2D5016; }
+  .finance-pend { color: #B85C38; }
+
+  .note { font-family: sans-serif; font-size: 12px; color: #8B7355; font-style: italic; margin-top: 16px; text-align: center; }
+</style>
+</head>
+<body>
+
+<h2>MAESTRO — Prototipo de referencia</h2>
+<p class="subtitle">Así luce actualmente el prototipo React. Esta es la base de diseño que llevaremos a Compose Multiplatform.</p>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- APP FRAME: DASHBOARD -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="app-frame">
+
+  <!-- Header -->
+  <div class="app-header">
+    <div class="logo-wrap">
+      <div class="logo-circle">♪</div>
+      <div>
+        <div class="logo-title">MAESTRO</div>
+        <div class="logo-sub">Para Profesores de Música</div>
+      </div>
+    </div>
+    <div class="water-btn">💧 3</div>
+  </div>
+
+  <!-- Nav -->
+  <div class="app-nav">
+    <div class="nav-tab active">♪ Inicio</div>
+    <div class="nav-tab">♬ Estudiantes</div>
+    <div class="nav-tab">📋 Clases</div>
+    <div class="nav-tab">₿ Finanzas</div>
+    <div class="nav-tab">✓ Tareas</div>
+    <div class="nav-tab">📅 Agenda</div>
+    <div class="nav-tab">𝅗𝅥 Metrónomo</div>
+    <div class="nav-tab">📖 Guía</div>
+  </div>
+
+  <!-- Content -->
+  <div class="app-content">
+
+    <!-- Phrase card -->
+    <div class="phrase-card">
+      <div class="phrase-label">Frase del día</div>
+      <div class="phrase-text">"No enseñas notas. Enseñas a escuchar el universo."</div>
+      <div class="phrase-author">— Nadia Boulanger</div>
+      <div class="phrase-dots">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+        <div class="dot"></div><div class="dot"></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card" style="background:#E8F0E0;">
+        <div class="stat-icon">♬</div>
+        <div class="stat-value" style="color:#2D5016;">3</div>
+        <div class="stat-label">Estudiantes activos</div>
+      </div>
+      <div class="stat-card" style="background:#FAE8E0;">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value" style="color:#B85C38;">4</div>
+        <div class="stat-label">Clases este mes</div>
+      </div>
+      <div class="stat-card" style="background:#E8F0E0;">
+        <div class="stat-icon">✓</div>
+        <div class="stat-value" style="color:#2D5016;">$570.000</div>
+        <div class="stat-label">Ingreso cobrado</div>
+      </div>
+      <div class="stat-card" style="background:#FDECEA;">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value" style="color:#C0392B;">$220.000</div>
+        <div class="stat-label">Por cobrar</div>
+      </div>
+      <div class="stat-card" style="background:#F0E6C8;">
+        <div class="stat-icon">☐</div>
+        <div class="stat-value" style="color:#2C1810;">3</div>
+        <div class="stat-label">Tareas pendientes</div>
+      </div>
+    </div>
+
+    <!-- Recent classes + Events -->
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-title">Últimas Clases</div>
+        <div class="list-item">
+          <div class="dot-color" style="background:#C9A84C;"></div>
+          <div><div class="item-name">Isabella García</div><div class="item-sub">Lectura a primera vista + Hanon</div></div>
+          <span class="badge-paid">✓ Pagado</span>
+        </div>
+        <div class="list-item">
+          <div class="dot-color" style="background:#2D5016;"></div>
+          <div><div class="item-name">Valentina López</div><div class="item-sub">Lectura de notas en pentagrama</div></div>
+          <span class="badge-pend">⏳ Pendiente</span>
+        </div>
+        <div class="list-item">
+          <div class="dot-color" style="background:#B85C38;"></div>
+          <div><div class="item-name">Mateo Restrepo</div><div class="item-sub">Sonatina Op.36 N°1 - desarrollo</div></div>
+          <span class="badge-paid">✓ Pagado</span>
+        </div>
+        <div class="list-item">
+          <div class="dot-color" style="background:#C9A84C;"></div>
+          <div><div class="item-name">Isabella García</div><div class="item-sub">Escala de Sol Mayor + Inventio BWV 772</div></div>
+          <span class="badge-paid">✓ Pagado</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Próximos Eventos</div>
+        <div class="list-item">
+          <div class="event-date event-purple"><div class="event-day">25</div><div class="event-mon">May</div></div>
+          <div><div class="item-name">Masterclass con Inv. Especial</div><div class="item-sub">Registro abierto para estudiantes avanzados</div></div>
+        </div>
+        <div class="list-item">
+          <div class="event-date event-green"><div class="event-day">30</div><div class="event-mon">May</div></div>
+          <div><div class="item-name">Evaluación de nivel</div><div class="item-sub">Todos los estudiantes, 2-6pm</div></div>
+        </div>
+        <div class="list-item">
+          <div class="event-date"><div class="event-day">15</div><div class="event-mon">Jun</div></div>
+          <div><div class="item-name">Recital Fin de Semestre</div><div class="item-sub">Auditorio PIANOACADEMY - 6pm</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app-content -->
+</div><!-- /app-frame -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ESTUDIANTES -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-heading">② Módulo de Estudiantes</div>
+<div class="students-grid">
+  <div class="student-card" style="border-left-color:#C9A84C;">
+    <div class="student-name">Isabella García</div>
+    <div class="student-level">Elemental · 10 años</div>
+    <div style="font-family:sans-serif;font-size:10px;color:#8B7355;margin-top:4px;">300-123-4567 · isabella@gmail.com</div>
+    <div style="font-family:sans-serif;font-size:10px;color:#2C1810;margin-top:6px;font-style:italic;">"Muy dedicada. Trabaja escalas en casa."</div>
+    <div class="student-fee">$250.000 / mes</div>
+  </div>
+  <div class="student-card" style="border-left-color:#B85C38;">
+    <div class="student-name">Mateo Restrepo</div>
+    <div class="student-level">Intermedio · 14 años</div>
+    <div style="font-family:sans-serif;font-size:10px;color:#8B7355;margin-top:4px;">301-234-5678 · mateo@gmail.com</div>
+    <div style="font-family:sans-serif;font-size:10px;color:#2C1810;margin-top:6px;font-style:italic;">"Necesita trabajar la independencia de manos."</div>
+    <div class="student-fee">$320.000 / mes</div>
+  </div>
+  <div class="student-card" style="border-left-color:#2D5016;">
+    <div class="student-name">Valentina López</div>
+    <div class="student-level">Inicial · 8 años</div>
+    <div style="font-family:sans-serif;font-size:10px;color:#8B7355;margin-top:4px;">302-345-6789 · valentina@gmail.com</div>
+    <div style="font-family:sans-serif;font-size:10px;color:#2C1810;margin-top:6px;font-style:italic;">"Aprende muy rápido. Excelente oído."</div>
+    <div class="student-fee">$220.000 / mes</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TAREAS + FINANZAS -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-heading">⑤ Tareas &nbsp;&nbsp;/&nbsp;&nbsp; ④ Finanzas</div>
+<div class="bottom-panels">
+  <div class="panel">
+    <div class="panel-title">Tareas</div>
+    <div class="task-item">
+      <div class="task-check"></div>
+      <div class="task-text">Preparar repertorio para recital de junio</div>
+      <span class="priority-alta">Alta</span>
+    </div>
+    <div class="task-item">
+      <div class="task-check"></div>
+      <div class="task-text">Enviar recibos de pago del mes</div>
+      <span class="priority-alta">Alta</span>
+    </div>
+    <div class="task-item">
+      <div class="task-check"></div>
+      <div class="task-text">Buscar método para Valentina (nivel inicial avanzado)</div>
+      <span class="priority-media">Media</span>
+    </div>
+    <div class="task-item">
+      <div class="task-check done"></div>
+      <div class="task-text done">Revisar grabaciones del curso SONUS PRO</div>
+      <span class="priority-baja">Baja</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Finanzas — Mayo 2026</div>
+    <div class="finance-row">
+      <div>
+        <div class="finance-name">Isabella García</div>
+        <div style="font-family:sans-serif;font-size:10px;color:#8B7355;">Elemental</div>
+      </div>
+      <span class="finance-amt finance-paid">$250.000 ✓</span>
+    </div>
+    <div class="finance-row">
+      <div>
+        <div class="finance-name">Mateo Restrepo</div>
+        <div style="font-family:sans-serif;font-size:10px;color:#8B7355;">Intermedio</div>
+      </div>
+      <span class="finance-amt finance-paid">$320.000 ✓</span>
+    </div>
+    <div class="finance-row">
+      <div>
+        <div class="finance-name">Valentina López</div>
+        <div style="font-family:sans-serif;font-size:10px;color:#8B7355;">Inicial</div>
+      </div>
+      <span class="finance-amt finance-pend">$220.000 ⏳</span>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:2px solid #F0E6C8;display:flex;justify-content:space-between;font-family:sans-serif;">
+      <span style="font-size:12px;color:#8B7355;">Total esperado</span>
+      <span style="font-size:13px;font-weight:700;color:#2C1810;">$790.000</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- METRÓNOMO -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-heading">⑦ Metrónomo</div>
+<div style="max-width:320px;">
+  <div class="metro-panel">
+    <div class="metro-label">BPM</div>
+    <div class="metro-bpm">♩= 120</div>
+    <div style="font-family:sans-serif;font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;">Allegro moderato</div>
+    <div class="metro-beats">
+      <div class="beat accent">1</div>
+      <div class="beat active">2</div>
+      <div class="beat">3</div>
+      <div class="beat">4</div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;">
+      <div style="font-family:sans-serif;font-size:11px;color:rgba(255,255,255,0.5);">2/4</div>
+      <div style="font-family:sans-serif;font-size:11px;color:#C9A84C;font-weight:700;border-bottom:1px solid #C9A84C;">4/4</div>
+      <div style="font-family:sans-serif;font-size:11px;color:rgba(255,255,255,0.5);">3/4</div>
+      <div style="font-family:sans-serif;font-size:11px;color:rgba(255,255,255,0.5);">6/4</div>
+    </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:12px;justify-content:center;">
+      <div style="font-family:sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">−</div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:20px;height:6px;width:160px;position:relative;">
+        <div style="background:#C9A84C;border-radius:20px;height:6px;width:65%;"></div>
+      </div>
+      <div style="font-family:sans-serif;font-size:12px;color:rgba(255,255,255,0.5);">+</div>
+    </div>
+    <button class="metro-btn">■</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- GUÍA DE NIVELES -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-heading">⑧ Guía de Niveles</div>
+<div class="levels-grid">
+  <div class="level-card" style="background:#F0FFF0;border-left:4px solid #7BC67E;">
+    <div class="level-name" style="color:#2D5016;">Inicial</div>
+    <div class="level-dur">6-12 meses</div>
+    <div class="level-obj">Postura y posición al piano</div>
+    <div class="level-obj">Lectura de notas básicas (Do-Sol)</div>
+    <div class="level-obj">Ritmo con valores básicos</div>
+    <div class="level-obj">Canciones simples con 5 dedos</div>
+  </div>
+  <div class="level-card" style="background:#EFF6FF;border-left:4px solid #64B5F6;">
+    <div class="level-name" style="color:#1565C0;">Elemental</div>
+    <div class="level-dur">1-2 años</div>
+    <div class="level-obj">Escalas mayores (Do, Sol, Re)</div>
+    <div class="level-obj">Lectura en clave de Fa</div>
+    <div class="level-obj">Articulaciones básicas</div>
+    <div class="level-obj">Piezas ABRSM nivel 1-2</div>
+  </div>
+  <div class="level-card" style="background:#FFFBF0;border-left:4px solid #FFB74D;">
+    <div class="level-name" style="color:#E65100;">Intermedio</div>
+    <div class="level-dur">2-3 años</div>
+    <div class="level-obj">Escalas y arpegios completos</div>
+    <div class="level-obj">Fraseo musical y pedal</div>
+    <div class="level-obj">Análisis formal básico</div>
+    <div class="level-obj">Mozart, Beethoven, Chopin</div>
+  </div>
+  <div class="level-card" style="background:#FFF0F5;border-left:4px solid #F06292;">
+    <div class="level-name" style="color:#880E4F;">Avanzado</div>
+    <div class="level-dur">3+ años</div>
+    <div class="level-obj">Técnica avanzada</div>
+    <div class="level-obj">Repertorio de concierto</div>
+    <div class="level-obj">Interpretación estilística</div>
+    <div class="level-obj">Preparación para audiciones</div>
+  </div>
+</div>
+
+<p class="note">Este es el diseño de referencia · La paleta y estructura se preservarán en Compose Multiplatform</p>
+
+</body>
+</html>
