@@ -2,9 +2,9 @@ package com.maestro.shared.model
 
 import kotlinx.serialization.Serializable
 
-enum class Level { INICIAL, ELEMENTAL, INTERMEDIO, AVANZADO }
-enum class Priority { ALTA, MEDIA, BAJA }
-enum class EventType { RECITAL, MASTERCLASS, EVALUACION, OTRO }
+@Serializable enum class Level { INICIAL, ELEMENTAL, INTERMEDIO, AVANZADO }
+@Serializable enum class Priority { ALTA, MEDIA, BAJA }
+@Serializable enum class EventType { RECITAL, MASTERCLASS, EVALUACION, OTRO }
 
 @Serializable
 data class User(
