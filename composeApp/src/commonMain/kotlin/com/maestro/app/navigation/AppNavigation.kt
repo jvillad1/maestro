@@ -2,9 +2,12 @@ package com.maestro.app.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.savedstate.read
 import com.maestro.app.auth.TokenStorage
 import com.maestro.app.network.ApiClient
 import com.maestro.app.ui.auth.AuthScreen
@@ -52,9 +55,11 @@ fun AppNavigation() {
         composable(Screen.Students.route) {
             StudentsScreen(apiClient, navController)
         }
-        composable(Screen.StudentDetail.route) { backStack ->
-            val route = backStack.destination.route ?: ""
-            val studentId = route.split("/").lastOrNull()?.toLongOrNull() ?: 0L
+        composable(
+            Screen.StudentDetail.route,
+            arguments = listOf(navArgument("studentId") { type = NavType.LongType })
+        ) { backStack ->
+            val studentId = backStack.arguments?.read { getLong("studentId") } ?: 0L
             StudentDetailScreen(studentId, apiClient, navController)
         }
         composable(Screen.Classes.route) { ClassesScreen(apiClient, navController) }

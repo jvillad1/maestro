@@ -64,6 +64,7 @@ class DashboardViewModel(private val apiClient: ApiClient) : ViewModel() {
 }
 
 expect fun getCurrentMonth(): String
+expect fun getCurrentDate(): String
 
 data class Phrase(val text: String, val author: String)
 

@@ -23,6 +23,7 @@ import com.maestro.app.navigation.Screen
 import com.maestro.app.network.ApiClient
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.dashboard.getCurrentDate
 import com.maestro.shared.model.Event
 import com.maestro.shared.model.EventType
 
@@ -38,15 +39,6 @@ private fun eventTypeColor(type: EventType): Color = when (type) {
     EventType.MASTERCLASS -> MaestroColors.Forest
     EventType.EVALUACION -> Color(0xFF7B68EE)
     EventType.OTRO -> MaestroColors.Muted
-}
-
-private fun isEventPast(date: String, todayStr: String): Boolean = date < todayStr
-
-private fun todayString(): String {
-    // Using a fixed format since getCurrentMonth gives YYYY-MM, we use 2026-05-04
-    // For CMP compatibility: we derive today from getCurrentMonth
-    // We'll return a sentinel and do the comparison by string
-    return "2026-05-04" // This will be overridden at runtime via platform
 }
 
 private fun extractDay(date: String): String {
@@ -65,6 +57,7 @@ private fun extractMonthName(date: String): String {
 fun EventsScreen(apiClient: ApiClient, navController: NavHostController) {
     val vm = viewModel { EventsViewModel(apiClient) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val today = remember { getCurrentDate() }
 
     var titleInput by remember { mutableStateOf("") }
     var dateInput by remember { mutableStateOf("") }
@@ -112,7 +105,7 @@ fun EventsScreen(apiClient: ApiClient, navController: NavHostController) {
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(state.events) { event ->
-                            EventCard(event = event)
+                            EventCard(event = event, today = today)
                         }
                     }
                 }
@@ -213,9 +206,9 @@ fun EventsScreen(apiClient: ApiClient, navController: NavHostController) {
 }
 
 @Composable
-private fun EventCard(event: Event) {
+private fun EventCard(event: Event, today: String) {
     val typeColor = eventTypeColor(event.type)
-    val isPast = event.date < "2026-05-04"
+    val isPast = event.date < today
 
     Card(
         modifier = Modifier.fillMaxWidth(),
