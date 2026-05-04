@@ -31,7 +31,7 @@ fun DashboardScreen(apiClient: ApiClient, navController: NavHostController) {
         }
     }
 
-    AppScaffold(Screen.Dashboard.route, navController) {
+    AppScaffold(Screen.Dashboard.route, navController, pageTitle = "Inicio") {
         if (state.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = MaestroColors.Gold)

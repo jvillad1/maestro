@@ -72,7 +72,7 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
     val focusDate = remember { FocusRequester() }
     val focusTopic = remember { FocusRequester() }
 
-    AppScaffold(Screen.Classes.route, navController) {
+    AppScaffold(Screen.Classes.route, navController, pageTitle = "Clases") {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
                 // Header

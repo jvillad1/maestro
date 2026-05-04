@@ -12,4 +12,7 @@ object MaestroColors {
     val Muted = Color(0xFF8B7355)
     val LightGold = Color(0xFFF0E6C8)
     val SoftGreen = Color(0xFFE8F0E0)
+    val Paper = Color(0xFFFAF6EE)
+    val Ink = Color(0xFF1F0F02)
+    val EspressoHi = Color(0xFF52280A)
 }

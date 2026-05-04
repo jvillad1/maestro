@@ -40,7 +40,7 @@ val LEVEL_GUIDE_DATA = listOf(
 
 @Composable
 fun GuideScreen(navController: NavHostController) {
-    AppScaffold(Screen.Guide.route, navController) {
+    AppScaffold(Screen.Guide.route, navController, pageTitle = "Guía de Niveles") {
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)

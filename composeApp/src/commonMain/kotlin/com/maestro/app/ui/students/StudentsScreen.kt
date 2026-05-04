@@ -108,7 +108,7 @@ fun StudentsScreen(apiClient: ApiClient, navController: NavHostController) {
     val focusFee = remember { FocusRequester() }
     val focusNotes = remember { FocusRequester() }
 
-    AppScaffold(Screen.Students.route, navController) {
+    AppScaffold(Screen.Students.route, navController, pageTitle = "Mis Estudiantes") {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
                 // Header
@@ -378,7 +378,7 @@ fun StudentDetailScreen(studentId: Long, apiClient: ApiClient, navController: Na
 
     LaunchedEffect(studentId) { vm.load(studentId) }
 
-    AppScaffold(Screen.StudentDetail.route, navController) {
+    AppScaffold(Screen.StudentDetail.route, navController, pageTitle = "Detalle de Estudiante") {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
             // Back button
             TextButton(onClick = { navController.popBackStack() }) {

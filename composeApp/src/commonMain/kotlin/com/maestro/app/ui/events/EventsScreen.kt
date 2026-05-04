@@ -76,7 +76,7 @@ fun EventsScreen(apiClient: ApiClient, navController: NavHostController) {
     val focusDate = remember { FocusRequester() }
     val focusDescription = remember { FocusRequester() }
 
-    AppScaffold(Screen.Events.route, navController) {
+    AppScaffold(Screen.Events.route, navController, pageTitle = "Agenda") {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
                 // Header

@@ -62,7 +62,7 @@ fun TasksScreen(apiClient: ApiClient, navController: NavHostController) {
     // Single field — Tab stays on the same field (no-op)
     val focusText = remember { FocusRequester() }
 
-    AppScaffold(Screen.Tasks.route, navController) {
+    AppScaffold(Screen.Tasks.route, navController, pageTitle = "Tareas") {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
                 // Header
