@@ -1,0 +1,53 @@
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/dashboard/DashboardScreen.kt
+  99e0c11e44e8f1d0 1-96
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/classes/ClassesScreen.kt
+  99e0c11e44e8f1d0 1-17
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/tasks/TasksScreen.kt
+  99e0c11e44e8f1d0 1-17
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/guide/GuideScreen.kt
+  99e0c11e44e8f1d0 1-16
+composeApp/src/wasmJsMain/kotlin/com/maestro/app/ui/dashboard/PlatformDate.wasmJs.kt
+  99e0c11e44e8f1d0 1-16
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/events/EventsScreen.kt
+  99e0c11e44e8f1d0 1-17
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/metronome/MetronomeScreen.kt
+  99e0c11e44e8f1d0 1-16
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/finances/FinancesScreen.kt
+  99e0c11e44e8f1d0 1-17
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/dashboard/DashboardViewModel.kt
+  99e0c11e44e8f1d0 1-79
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/auth/AuthScreen.kt
+  99e0c11e44e8f1d0 1-77
+composeApp/src/androidMain/kotlin/com/maestro/app/ui/dashboard/PlatformDate.android.kt
+  99e0c11e44e8f1d0 1-5
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/students/StudentsScreen.kt
+  99e0c11e44e8f1d0 1-24
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/components/AppScaffold.kt
+  99e0c11e44e8f1d0 1-58
+gradle/libs.versions.toml
+  99e0c11e44e8f1d0 43
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/auth/AuthViewModel.kt
+  99e0c11e44e8f1d0 1-53
+composeApp/build.gradle.kts
+  99e0c11e44e8f1d0 46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "84795bda42e9842bf3f0927bd7c1c68814c36e81",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 513,
+      "total_deletions": 3,
+      "accepted_lines": 510,
+      "overriden_lines": 0
+    }
+  }
+}
