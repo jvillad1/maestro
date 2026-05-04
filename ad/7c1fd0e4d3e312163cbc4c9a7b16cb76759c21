@@ -1,0 +1,31 @@
+server/src/main/kotlin/com/maestro/server/routes/ClassRoutes.kt
+  99e0c11e44e8f1d0 3-11,13-15,17-84
+server/src/test/kotlin/com/maestro/server/StudentRoutesTest.kt
+  99e0c11e44e8f1d0 1-75
+server/src/main/kotlin/com/maestro/server/routes/StudentRoutes.kt
+  99e0c11e44e8f1d0 3-13,15-18,20-100
+server/src/main/kotlin/com/maestro/server/routes/TaskRoutes.kt
+  99e0c11e44e8f1d0 3-12,14-16,18-63
+server/src/main/kotlin/com/maestro/server/routes/EventRoutes.kt
+  99e0c11e44e8f1d0 3-12,14-16,18-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "ad7c1fd0e4d3e312163cbc4c9a7b16cb76759c21",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 373,
+      "total_deletions": 6,
+      "accepted_lines": 372,
+      "overriden_lines": 0
+    }
+  }
+}
