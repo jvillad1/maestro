@@ -1,0 +1,31 @@
+composeApp/src/wasmJsMain/kotlin/com/maestro/app/ui/dashboard/PlatformDate.wasmJs.kt
+  99e0c11e44e8f1d0 6,18-26
+composeApp/src/androidMain/kotlin/com/maestro/app/ui/dashboard/PlatformDate.android.kt
+  99e0c11e44e8f1d0 6
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/events/EventsScreen.kt
+  99e0c11e44e8f1d0 26,60,108,209,211
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/dashboard/DashboardViewModel.kt
+  99e0c11e44e8f1d0 67
+composeApp/src/commonMain/kotlin/com/maestro/app/navigation/AppNavigation.kt
+  99e0c11e44e8f1d0 5,9-10,58-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "030f6fa3b61f9729bc113b454514a9e64dfb2fbc",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 26,
+      "total_deletions": 16,
+      "accepted_lines": 25,
+      "overriden_lines": 0
+    }
+  }
+}
