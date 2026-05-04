@@ -68,14 +68,13 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
     var topicInput by remember { mutableStateOf("") }
     var paidInput by remember { mutableStateOf(false) }
 
-    // Focus requesters: date -> topic -> date (circular)
     val focusDate = remember { FocusRequester() }
     val focusTopic = remember { FocusRequester() }
 
     AppScaffold(Screen.Classes.route, navController, pageTitle = "Clases") {
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-                // Header
+            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 20.dp)) {
+                // Toolbar
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -83,23 +82,21 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
                 ) {
                     Column {
                         Text(
-                            "Registro de Clases",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaestroColors.Espresso,
-                            fontWeight = FontWeight.Bold
+                            state.currentMonth,
+                            fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted
                         )
                         Text(
-                            state.currentMonth,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaestroColors.Muted
+                            "${state.classes.size} clases registradas",
+                            fontSize = 11.sp, color = MaestroColors.Muted
                         )
                     }
                     Button(
                         onClick = { vm.showAddDialog() },
                         colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
                     ) {
-                        Text("+ Registrar Clase", color = MaestroColors.White)
+                        Text("+ Registrar clase", color = MaestroColors.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
 
@@ -111,16 +108,48 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
                     }
                 } else if (state.classes.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Sin clases este mes", color = MaestroColors.Muted)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("♬", fontSize = 32.sp)
+                            Text("Sin clases este mes", color = MaestroColors.Muted, fontSize = 14.sp)
+                            Text("Registra la primera clase del período.", color = MaestroColors.Muted, fontSize = 12.sp)
+                        }
                     }
                 } else {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(state.classes) { cls ->
-                            ClassItem(
-                                classEntry = cls,
-                                students = state.students,
-                                onTogglePaid = { vm.togglePaid(cls) }
-                            )
+                    Card(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaestroColors.White),
+                        elevation = CardDefaults.cardElevation(1.dp)
+                    ) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            // Header row
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaestroColors.LightGold.copy(alpha = 0.45f))
+                                    .padding(horizontal = 20.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Estudiante", modifier = Modifier.weight(2f), fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.6.sp)
+                                Text("Fecha", modifier = Modifier.weight(1f), fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.6.sp)
+                                Text("Estado", modifier = Modifier.weight(1f), fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.6.sp)
+                                Spacer(Modifier.width(100.dp))
+                            }
+                            HorizontalDivider(color = MaestroColors.LightGold)
+
+                            LazyColumn(modifier = Modifier.weight(1f)) {
+                                items(state.classes) { cls ->
+                                    ClassTableRow(
+                                        classEntry = cls,
+                                        students = state.students,
+                                        onTogglePaid = { vm.togglePaid(cls) }
+                                    )
+                                    HorizontalDivider(color = MaestroColors.LightGold.copy(alpha = 0.6f))
+                                }
+                            }
                         }
                     }
                 }
@@ -129,7 +158,7 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
             // Add Class Dialog
             if (state.showAddDialog) {
                 Box(
-                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Card(
@@ -141,14 +170,9 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
                             modifier = Modifier.padding(24.dp).verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                "Registrar Clase",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaestroColors.Espresso,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Text("Registrar Clase", style = MaterialTheme.typography.titleMedium,
+                                color = MaestroColors.Espresso, fontWeight = FontWeight.Bold)
 
-                            // Student selector
                             Text("Estudiante", style = MaterialTheme.typography.labelMedium, color = MaestroColors.Muted)
                             state.students.forEach { student ->
                                 val selected = selectedStudentId == student.id
@@ -159,22 +183,18 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
                                         containerColor = if (selected) MaestroColors.LightGold else Color.Transparent,
                                         contentColor = MaestroColors.Espresso
                                     )
-                                ) {
-                                    Text(student.name)
-                                }
+                                ) { Text(student.name) }
                             }
 
                             OutlinedTextField(
                                 value = dateInput, onValueChange = { dateInput = it },
                                 label = { Text("Fecha (YYYY-MM-DD)") },
+                                placeholder = { Text("2024-01-15") },
                                 modifier = Modifier.fillMaxWidth()
                                     .focusRequester(focusDate)
                                     .onPreviewKeyEvent { e ->
-                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
-                                            focusTopic.requestFocus(); true
-                                        } else false
-                                    },
-                                placeholder = { Text("2024-01-15") }
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) { focusTopic.requestFocus(); true } else false
+                                    }
                             )
                             OutlinedTextField(
                                 value = topicInput, onValueChange = { topicInput = it },
@@ -182,9 +202,7 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
                                 modifier = Modifier.fillMaxWidth()
                                     .focusRequester(focusTopic)
                                     .onPreviewKeyEvent { e ->
-                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
-                                            focusDate.requestFocus(); true
-                                        } else false
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) { focusDate.requestFocus(); true } else false
                                     }
                             )
 
@@ -193,30 +211,21 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
                                 Text("Clase pagada", style = MaterialTheme.typography.bodyMedium, color = MaestroColors.Espresso)
                             }
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
-                            ) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
                                 OutlinedButton(onClick = {
                                     vm.hideAddDialog()
-                                    selectedStudentId = null
-                                    dateInput = ""; topicInput = ""; paidInput = false
-                                }) {
-                                    Text("Cancelar")
-                                }
+                                    selectedStudentId = null; dateInput = ""; topicInput = ""; paidInput = false
+                                }) { Text("Cancelar") }
                                 Button(
                                     onClick = {
                                         selectedStudentId?.let { sid ->
                                             vm.createClass(sid, dateInput, topicInput, paidInput)
-                                            selectedStudentId = null
-                                            dateInput = ""; topicInput = ""; paidInput = false
+                                            selectedStudentId = null; dateInput = ""; topicInput = ""; paidInput = false
                                         }
                                     },
                                     enabled = selectedStudentId != null && dateInput.isNotBlank() && topicInput.isNotBlank(),
                                     colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra)
-                                ) {
-                                    Text("Guardar")
-                                }
+                                ) { Text("Guardar") }
                             }
                         }
                     }
@@ -227,49 +236,56 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
 }
 
 @Composable
-private fun ClassItem(classEntry: ClassEntry, students: List<Student>, onTogglePaid: () -> Unit) {
+private fun ClassTableRow(classEntry: ClassEntry, students: List<Student>, onTogglePaid: () -> Unit) {
     val color = studentColor(students, classEntry.studentId)
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = MaestroColors.White),
-        elevation = CardDefaults.cardElevation(1.dp)
+
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 13.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        // Student column
         Row(
-            modifier = Modifier.fillMaxWidth().padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.weight(2f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                Box(
-                    modifier = Modifier.size(36.dp).clip(CircleShape).background(color.copy(alpha = 0.2f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(studentInitial(students, classEntry.studentId), color = color, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                }
-                Column {
-                    Text(studentName(students, classEntry.studentId), style = MaterialTheme.typography.bodyMedium, color = MaestroColors.Espresso, fontWeight = FontWeight.SemiBold)
-                    Text(classEntry.topic, style = MaterialTheme.typography.bodySmall, color = MaestroColors.Muted)
-                    Text(formatDate(classEntry.date), style = MaterialTheme.typography.labelSmall, color = MaestroColors.Muted)
-                }
+            Box(
+                modifier = Modifier.size(34.dp).clip(CircleShape).background(color.copy(alpha = 0.18f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(studentInitial(students, classEntry.studentId), color = color, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier.background(
-                        if (classEntry.paid) MaestroColors.SoftGreen else Color(0xFFFDECEA),
-                        RoundedCornerShape(4.dp)
-                    ).padding(horizontal = 6.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        if (classEntry.paid) "Pagado" else "Pendiente",
-                        fontSize = 10.sp,
-                        color = if (classEntry.paid) MaestroColors.Forest else Color(0xFFC0392B)
-                    )
-                }
-                TextButton(onClick = onTogglePaid, contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)) {
-                    Text(if (classEntry.paid) "Desmarcar" else "Marcar pagado", fontSize = 10.sp, color = MaestroColors.Terra)
-                }
+            Column {
+                Text(studentName(students, classEntry.studentId),
+                    fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso)
+                Text(classEntry.topic, fontSize = 11.sp, color = MaestroColors.Muted)
             }
+        }
+
+        // Date column
+        Text(formatDate(classEntry.date),
+            modifier = Modifier.weight(1f),
+            fontSize = 12.sp, color = MaestroColors.Espresso)
+
+        // Status + action column
+        Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier
+                .background(
+                    if (classEntry.paid) MaestroColors.SoftGreen else Color(0xFFFDE8D8),
+                    RoundedCornerShape(4.dp)
+                )
+                .padding(horizontal = 8.dp, vertical = 3.dp)
+            ) {
+                Text(if (classEntry.paid) "Pagado" else "Pendiente", fontSize = 10.sp,
+                    color = if (classEntry.paid) MaestroColors.Forest else MaestroColors.Terra,
+                    fontWeight = FontWeight.SemiBold)
+            }
+        }
+
+        // Toggle action
+        TextButton(onClick = onTogglePaid, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)) {
+            Text(if (classEntry.paid) "Desmarcar" else "Marcar pagado",
+                fontSize = 11.sp, color = MaestroColors.Terra)
         }
     }
 }
