@@ -1,0 +1,41 @@
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/students/StudentsScreen.kt
+  99e0c11e44e8f1d0 3-17,20-27,29,31-79,83-313,319-475
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/events/EventsViewModel.kt
+  99e0c11e44e8f1d0 1-58
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/events/EventsScreen.kt
+  99e0c11e44e8f1d0 3-12,15-20,22,24-62,66-280
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/tasks/TasksViewModel.kt
+  99e0c11e44e8f1d0 1-81
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/finances/FinancesScreen.kt
+  99e0c11e44e8f1d0 3-10,13-19,21,23-37,41-174
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/students/StudentsViewModel.kt
+  99e0c11e44e8f1d0 1-112
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/classes/ClassesViewModel.kt
+  99e0c11e44e8f1d0 1-85
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/tasks/TasksScreen.kt
+  99e0c11e44e8f1d0 3-11,14-20,22,24-45,49-253
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/classes/ClassesScreen.kt
+  99e0c11e44e8f1d0 3-12,15-21,23,25-52,56-248
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/finances/FinancesViewModel.kt
+  99e0c11e44e8f1d0 1-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "55b550140988017ab61aace058e53356b47e2970",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 1788,
+      "total_deletions": 34,
+      "accepted_lines": 1786,
+      "overriden_lines": 0
+    }
+  }
+}
