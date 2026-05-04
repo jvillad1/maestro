@@ -23,10 +23,16 @@ import com.maestro.app.navigation.Screen
 import com.maestro.app.network.ApiClient
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.MaestroExpansiveHeader
+import com.maestro.app.ui.components.formatHeaderDate
 import com.maestro.shared.model.Task
 
 @Composable
-fun DashboardScreen(apiClient: ApiClient, navController: NavHostController) {
+fun DashboardScreen(
+    apiClient: ApiClient,
+    navController: NavHostController,
+    userName: String = ""
+) {
     val vm = viewModel { DashboardViewModel(apiClient) }
     val state by vm.state.collectAsStateWithLifecycle()
 
@@ -37,7 +43,33 @@ fun DashboardScreen(apiClient: ApiClient, navController: NavHostController) {
         }
     }
 
-    AppScaffold(Screen.Dashboard.route, navController, pageTitle = "") {
+    val today = remember { getCurrentDate() }
+    val dateLabel = remember(today) { formatHeaderDate(today) }
+
+    val subtitle = remember(state.recentClasses, state.pendingTasks) {
+        if (!state.isLoading) {
+            val pending = state.students.count { s ->
+                state.recentClasses.any { it.studentId == s.id && !it.paid }
+            }
+            val classesCnt = state.recentClasses.size
+            "Tienes $classesCnt clases registradas este mes" +
+                if (pending > 0) " y $pending ${if (pending == 1) "pago" else "pagos"} por confirmar." else "."
+        } else ""
+    }
+
+    AppScaffold(
+        currentRoute = Screen.Dashboard.route,
+        navController = navController,
+        userName = userName,
+        dashboardHeader = {
+            MaestroExpansiveHeader(
+                userName = userName,
+                dateLabel = dateLabel,
+                subtitle = subtitle,
+                onNewClass = { navController.navigate(Screen.Classes.route) }
+            )
+        }
+    ) {
         if (state.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = MaestroColors.Gold)
@@ -54,32 +86,21 @@ fun DashboardScreen(apiClient: ApiClient, navController: NavHostController) {
         ) {
             // KPI strip
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                KpiCard(
-                    "Estudiantes activos", state.students.size.toString(),
-                    "+${maxOf(0, state.students.size - 30)} este mes", MaestroColors.Espresso, Modifier.weight(1f)
-                )
-                KpiCard(
-                    "Clases registradas", state.recentClasses.size.toString(),
-                    "Este mes", MaestroColors.Terra, Modifier.weight(1f)
-                )
-                KpiCard(
-                    "Por cobrar", dashFormatCOP(state.pendingIncome),
+                KpiCard("ESTUDIANTES ACTIVOS", state.students.size.toString(), "+${maxOf(0, state.students.size - 30)} este mes", MaestroColors.Espresso, Modifier.weight(1f))
+                KpiCard("CLASES ESTA SEMANA", state.recentClasses.size.toString(), "${state.recentClasses.size} este mes", MaestroColors.Terra, Modifier.weight(1f))
+                KpiCard("POR COBRAR", dashFormatCOP(state.pendingIncome),
                     "${state.students.count { s -> state.recentClasses.any { it.studentId == s.id && !it.paid } }} pagos pendientes",
-                    MaestroColors.Gold, Modifier.weight(1f)
-                )
-                KpiCard(
-                    "Promedio asistencia", "94%",
-                    "Últimos 30 días", MaestroColors.Terra, Modifier.weight(1f)
-                )
+                    MaestroColors.Gold, Modifier.weight(1f))
+                KpiCard("PROMEDIO ASISTENCIA", "94%", "Últimos 30 días", MaestroColors.Terra, Modifier.weight(1f))
             }
 
             // Two-column body
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                // Left column — 2fr
+                // Left — 2fr
                 Column(modifier = Modifier.weight(2f), verticalArrangement = Arrangement.spacedBy(24.dp)) {
                     // Recent classes
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        DashSectionHeader("Clases recientes", "Ver todas →") {
+                        DashSectionHeader("Clases recientes", "Ver agenda completa →") {
                             navController.navigate(Screen.Classes.route)
                         }
                         Card(
@@ -113,7 +134,7 @@ fun DashboardScreen(apiClient: ApiClient, navController: NavHostController) {
                     // Pending tasks
                     if (state.pendingTasks.isNotEmpty()) {
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            DashSectionHeader("Tareas pendientes", "Ver todas →") {
+                            DashSectionHeader("Tareas pendientes", "Nueva tarea") {
                                 navController.navigate(Screen.Tasks.route)
                             }
                             Card(
@@ -132,50 +153,68 @@ fun DashboardScreen(apiClient: ApiClient, navController: NavHostController) {
                     }
                 }
 
-                // Right column — 1fr
+                // Right — 1fr
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                    // Upcoming events
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        DashSectionHeader("Próximos eventos", null) {}
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaestroColors.White),
-                            elevation = CardDefaults.cardElevation(1.dp)
-                        ) {
-                            if (state.upcomingEvents.isEmpty()) {
-                                Box(Modifier.fillMaxWidth().padding(20.dp), contentAlignment = Alignment.Center) {
-                                    Text("Sin eventos próximos", color = MaestroColors.Muted, fontSize = 13.sp)
-                                }
-                            } else {
-                                Column {
-                                    state.upcomingEvents.forEachIndexed { idx, event ->
+                    // Próximos pagos
+                    val unpaidStudents = state.students.filter { s ->
+                        state.recentClasses.any { it.studentId == s.id && !it.paid }
+                    }.take(4)
+
+                    if (unpaidStudents.isNotEmpty()) {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            DashSectionHeader("Próximos pagos", "Ver todos") {
+                                navController.navigate(Screen.Finances.route)
+                            }
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaestroColors.White),
+                                elevation = CardDefaults.cardElevation(1.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(4.dp)) {
+                                    unpaidStudents.forEachIndexed { idx, student ->
                                         Row(
                                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
+                                            val color = dashParseColor(student.color)
                                             Box(
-                                                modifier = Modifier.size(36.dp).background(MaestroColors.LightGold, RoundedCornerShape(8.dp)),
+                                                modifier = Modifier.size(34.dp).clip(CircleShape).background(color.copy(alpha = 0.18f)),
                                                 contentAlignment = Alignment.Center
-                                            ) { Text("📅", fontSize = 16.sp) }
+                                            ) {
+                                                Text(student.name.firstOrNull()?.uppercase() ?: "?",
+                                                    color = color, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                            }
                                             Column(modifier = Modifier.weight(1f)) {
-                                                Text(event.title, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso)
-                                                Text(event.date, fontSize = 11.sp, color = MaestroColors.Muted)
+                                                Text(student.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso)
+                                                Text("Mensualidad pendiente", fontSize = 11.sp, color = MaestroColors.Muted)
+                                            }
+                                            Column(horizontalAlignment = Alignment.End) {
+                                                Text(
+                                                    dashFormatCOP(student.monthlyFee),
+                                                    fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                                                    color = MaestroColors.Espresso
+                                                )
+                                                Box(
+                                                    modifier = Modifier.background(Color(0xFFFDE8D8), RoundedCornerShape(4.dp))
+                                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                                ) {
+                                                    Text("Pendiente", fontSize = 9.sp, color = MaestroColors.Terra, fontWeight = FontWeight.SemiBold)
+                                                }
                                             }
                                         }
-                                        if (idx < state.upcomingEvents.size - 1)
-                                            HorizontalDivider(color = MaestroColors.LightGold)
+                                        if (idx < unpaidStudents.size - 1) HorizontalDivider(color = MaestroColors.LightGold)
                                     }
                                 }
                             }
                         }
                     }
 
-                    // Motivational phrase
+                    // Nota del día
                     val phrase = PHRASES[state.currentPhraseIndex]
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        DashSectionHeader("Nota del día", null) {}
+                        DashSectionHeader("Notas rápidas", null) {}
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -194,6 +233,39 @@ fun DashboardScreen(apiClient: ApiClient, navController: NavHostController) {
                             }
                         }
                     }
+
+                    // Upcoming events
+                    if (state.upcomingEvents.isNotEmpty()) {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            DashSectionHeader("Próximos eventos", null) {}
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaestroColors.White),
+                                elevation = CardDefaults.cardElevation(1.dp)
+                            ) {
+                                Column {
+                                    state.upcomingEvents.take(3).forEachIndexed { idx, event ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box(
+                                                modifier = Modifier.size(36.dp).background(MaestroColors.LightGold, RoundedCornerShape(8.dp)),
+                                                contentAlignment = Alignment.Center
+                                            ) { Text("📅", fontSize = 16.sp) }
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(event.title, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso)
+                                                Text(event.date, fontSize = 11.sp, color = MaestroColors.Muted)
+                                            }
+                                        }
+                                        if (idx < state.upcomingEvents.size - 1) HorizontalDivider(color = MaestroColors.LightGold)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -209,13 +281,9 @@ private fun KpiCard(label: String, value: String, hint: String, accent: Color, m
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(label, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.5.sp)
-            Text(value, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = MaestroColors.Espresso, lineHeight = 30.sp)
-            Box(
-                modifier = Modifier
-                    .background(accent.copy(alpha = 0.12f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-            ) {
+            Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.7.sp)
+            Text(value, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = accent, lineHeight = 32.sp)
+            Box(modifier = Modifier.background(accent.copy(alpha = 0.10f), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
                 Text(hint, fontSize = 10.sp, color = accent, fontWeight = FontWeight.Medium)
             }
         }
@@ -224,12 +292,8 @@ private fun KpiCard(label: String, value: String, hint: String, accent: Color, m
 
 @Composable
 private fun DashSectionHeader(title: String, actionLabel: String?, onAction: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(title, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso, letterSpacing = 0.3.sp)
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Text(title, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso, letterSpacing = 0.2.sp)
         if (actionLabel != null) {
             TextButton(onClick = onAction, contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)) {
                 Text(actionLabel, fontSize = 11.sp, color = MaestroColors.Terra)
@@ -251,32 +315,21 @@ private fun DashScheduleRow(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(date.takeLast(5), fontSize = 12.sp, fontWeight = FontWeight.Medium, color = MaestroColors.Muted,
-            modifier = Modifier.width(46.dp))
-        Box(
-            modifier = Modifier.size(32.dp).clip(CircleShape).background(studentColor.copy(alpha = 0.18f)),
-            contentAlignment = Alignment.Center
-        ) {
+        Text(date.takeLast(5), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaestroColors.Espresso,
+            modifier = Modifier.width(52.dp))
+        Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(studentColor.copy(alpha = 0.18f)),
+            contentAlignment = Alignment.Center) {
             Text(studentName.firstOrNull()?.uppercase() ?: "?", color = studentColor, fontWeight = FontWeight.Bold, fontSize = 13.sp)
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(studentName, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso)
             Text(detail, fontSize = 11.sp, color = MaestroColors.Muted)
         }
-        Box(
-            modifier = Modifier
-                .background(
-                    if (isPaid) MaestroColors.SoftGreen else Color(0xFFFDE8D8),
-                    RoundedCornerShape(6.dp)
-                )
-                .padding(horizontal = 8.dp, vertical = 3.dp)
-        ) {
-            Text(
-                if (isPaid) "Pagado" else "Pendiente",
-                fontSize = 10.sp,
-                color = if (isPaid) MaestroColors.Forest else MaestroColors.Terra,
-                fontWeight = FontWeight.SemiBold
-            )
+        Box(modifier = Modifier
+            .background(if (isPaid) MaestroColors.SoftGreen else Color(0xFFFDE8D8), RoundedCornerShape(6.dp))
+            .padding(horizontal = 8.dp, vertical = 3.dp)) {
+            Text(if (isPaid) "Pagado" else "Pendiente", fontSize = 10.sp,
+                color = if (isPaid) MaestroColors.Forest else MaestroColors.Terra, fontWeight = FontWeight.SemiBold)
         }
     }
     if (!isLast) HorizontalDivider(color = MaestroColors.LightGold)
@@ -284,47 +337,14 @@ private fun DashScheduleRow(
 
 @Composable
 private fun DashTaskRow(task: Task, isLast: Boolean) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 13.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(16.dp)
-                .background(Color.Transparent, RoundedCornerShape(3.dp))
-                .padding(1.dp)
-                .background(MaestroColors.LightGold, RoundedCornerShape(3.dp))
-        )
-        Column(modifier = Modifier.weight(1f)) {
-            Text(task.text, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaestroColors.Espresso)
-        }
-        Box(
-            modifier = Modifier
-                .background(
-                    when (task.priority.name) {
-                        "ALTA" -> Color(0xFFFDE8D8)
-                        "MEDIA" -> MaestroColors.LightGold
-                        else -> Color.Transparent
-                    },
-                    RoundedCornerShape(4.dp)
-                )
-                .padding(horizontal = 6.dp, vertical = 2.dp)
-        ) {
-            Text(
-                when (task.priority.name) {
-                    "ALTA" -> "Alta"
-                    "MEDIA" -> "Media"
-                    else -> ""
-                },
-                fontSize = 10.sp,
-                color = when (task.priority.name) {
-                    "ALTA" -> MaestroColors.Terra
-                    "MEDIA" -> MaestroColors.Muted
-                    else -> Color.Transparent
-                },
-                fontWeight = FontWeight.Medium
-            )
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 13.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier.size(16.dp).background(MaestroColors.LightGold, RoundedCornerShape(3.dp)))
+        Text(task.text, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaestroColors.Espresso, modifier = Modifier.weight(1f))
+        if (task.priority.name == "ALTA") {
+            Box(modifier = Modifier.background(Color(0xFFFDE8D8), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
+                Text("Prioridad", fontSize = 10.sp, color = MaestroColors.Terra, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
     if (!isLast) HorizontalDivider(color = MaestroColors.LightGold)
@@ -340,4 +360,4 @@ private fun dashParseColor(hex: String): Color {
 }
 
 private fun dashFormatCOP(amount: Long): String =
-    "$${amount.toString().reversed().chunked(3).joinToString(".").reversed()}"
+    "\$${amount.toString().reversed().chunked(3).joinToString(".").reversed()}"

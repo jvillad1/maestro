@@ -35,7 +35,7 @@ fun MetronomeScreen(navController: NavHostController) {
         }
     }
 
-    AppScaffold(Screen.Metronome.route, navController, pageTitle = "Metrónomo") {
+    AppScaffold(Screen.Metronome.route, navController, pageTitle = "Metrónomo", breadcrumb = "Herramientas") {
         Column(
             modifier = Modifier.fillMaxSize().padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

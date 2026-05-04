@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"/Users/jvillada/.claude/projects/-Users-jvillada-AndroidStudioProjects-maestro/2fddaa2d-7812-495c-b180-9a5ba07d539e/tool-results/webfetch-1777926917000-w2rier.bin\" /tmp/maestro-design.gz)",
+      "Bash(gunzip -c /tmp/maestro-design.gz)",
+      "Bash(cp /tmp/maestro-design.gz /tmp/maestro-design.tar)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

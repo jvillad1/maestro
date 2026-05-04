@@ -50,7 +50,7 @@ fun AppNavigation() {
             AuthScreen(apiClient, tokenStorage) { navController.navigate(Screen.Dashboard.route) { popUpTo(0) } }
         }
         composable(Screen.Dashboard.route) {
-            DashboardScreen(apiClient, navController)
+            DashboardScreen(apiClient, navController, tokenStorage.getUserName() ?: "")
         }
         composable(Screen.Students.route) {
             StudentsScreen(apiClient, navController)

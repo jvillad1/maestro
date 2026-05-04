@@ -9,6 +9,7 @@ import kotlinx.coroutines.runBlocking
 
 private val Context.dataStore by preferencesDataStore(name = "maestro_prefs")
 private val TOKEN_KEY = stringPreferencesKey("maestro_token")
+private val NAME_KEY = stringPreferencesKey("maestro_user_name")
 
 actual class TokenStorage actual constructor() {
     private val context: Context get() = AppContextHolder.context
@@ -23,5 +24,13 @@ actual class TokenStorage actual constructor() {
 
     actual fun clearToken() { runBlocking {
         context.dataStore.edit { it.remove(TOKEN_KEY) }
+    }}
+
+    actual fun getUserName(): String? = runBlocking {
+        context.dataStore.data.first()[NAME_KEY]
+    }
+
+    actual fun saveUserName(name: String) { runBlocking {
+        context.dataStore.edit { it[NAME_KEY] = name }
     }}
 }

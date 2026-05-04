@@ -115,7 +115,7 @@ fun StudentsScreen(apiClient: ApiClient, navController: NavHostController) {
         else state.students.filter { it.name.contains(searchQuery, ignoreCase = true) }
     }
 
-    AppScaffold(Screen.Students.route, navController, pageTitle = "Estudiantes") {
+    AppScaffold(Screen.Students.route, navController, pageTitle = "Estudiantes", breadcrumb = "Gestión", subtitle = "${state.students.size} activos") {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 20.dp)) {
                 // Toolbar
@@ -413,7 +413,7 @@ fun StudentDetailScreen(studentId: Long, apiClient: ApiClient, navController: Na
 
     LaunchedEffect(studentId) { vm.load(studentId) }
 
-    AppScaffold(Screen.StudentDetail.route, navController, pageTitle = "Detalle") {
+    AppScaffold(Screen.StudentDetail.route, navController, pageTitle = "Detalle", breadcrumb = "Estudiantes") {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)) {
             TextButton(onClick = { navController.popBackStack() }) {
                 Text("← Volver a Estudiantes", color = MaestroColors.Terra)

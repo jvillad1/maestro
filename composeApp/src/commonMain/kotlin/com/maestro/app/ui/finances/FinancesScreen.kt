@@ -41,7 +41,7 @@ fun FinancesScreen(apiClient: ApiClient, navController: NavHostController) {
     val vm = viewModel { FinancesViewModel(apiClient) }
     val state by vm.state.collectAsStateWithLifecycle()
 
-    AppScaffold(Screen.Finances.route, navController, pageTitle = "Finanzas") {
+    AppScaffold(Screen.Finances.route, navController, pageTitle = "Finanzas", breadcrumb = "Gestión") {
         Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
             // Header
             Text(

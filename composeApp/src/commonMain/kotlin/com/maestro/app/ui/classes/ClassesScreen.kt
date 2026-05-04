@@ -71,7 +71,8 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
     val focusDate = remember { FocusRequester() }
     val focusTopic = remember { FocusRequester() }
 
-    AppScaffold(Screen.Classes.route, navController, pageTitle = "Clases") {
+    AppScaffold(Screen.Classes.route, navController, pageTitle = "Clases", breadcrumb = "Agenda",
+        subtitle = "${state.classes.size} clases registradas") {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 20.dp)) {
                 // Toolbar
