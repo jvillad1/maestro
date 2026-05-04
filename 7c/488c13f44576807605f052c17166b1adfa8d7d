@@ -1,0 +1,43 @@
+server/src/main/kotlin/com/maestro/server/routes/StudentRoutes.kt
+  99e0c11e44e8f1d0 1-5
+server/src/main/kotlin/com/maestro/server/plugins/Auth.kt
+  99e0c11e44e8f1d0 1-48
+server/src/main/kotlin/com/maestro/server/routes/ClassRoutes.kt
+  99e0c11e44e8f1d0 1-5
+server/src/test/resources/application.conf
+  99e0c11e44e8f1d0 1-20
+server/src/main/kotlin/com/maestro/server/routes/EventRoutes.kt
+  99e0c11e44e8f1d0 1-5
+server/src/main/kotlin/com/maestro/server/plugins/Routing.kt
+  99e0c11e44e8f1d0 1-18
+server/src/test/kotlin/com/maestro/server/AuthRoutesTest.kt
+  99e0c11e44e8f1d0 1-76
+server/src/main/kotlin/com/maestro/server/routes/AuthRoutes.kt
+  99e0c11e44e8f1d0 1-57
+server/src/main/kotlin/com/maestro/server/routes/TaskRoutes.kt
+  99e0c11e44e8f1d0 1-5
+server/src/main/kotlin/com/maestro/server/plugins/Serialization.kt
+  99e0c11e44e8f1d0 1-12
+server/src/main/kotlin/com/maestro/server/plugins/Cors.kt
+  99e0c11e44e8f1d0 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "7c488c13f44576807605f052c17166b1adfa8d7d",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 277,
+      "total_deletions": 7,
+      "accepted_lines": 270,
+      "overriden_lines": 0
+    }
+  }
+}
