@@ -12,7 +12,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,6 +70,11 @@ fun EventsScreen(apiClient: ApiClient, navController: NavHostController) {
     var dateInput by remember { mutableStateOf("") }
     var descriptionInput by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(EventType.RECITAL) }
+
+    // Focus requesters: title -> date -> description -> title (circular)
+    val focusTitle = remember { FocusRequester() }
+    val focusDate = remember { FocusRequester() }
+    val focusDescription = remember { FocusRequester() }
 
     AppScaffold(Screen.Events.route, navController) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -135,16 +147,37 @@ fun EventsScreen(apiClient: ApiClient, navController: NavHostController) {
 
                             OutlinedTextField(
                                 value = titleInput, onValueChange = { titleInput = it },
-                                label = { Text("Título del evento") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Título del evento") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusTitle)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusDate.requestFocus(); true
+                                        } else false
+                                    }
                             )
                             OutlinedTextField(
                                 value = dateInput, onValueChange = { dateInput = it },
-                                label = { Text("Fecha (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Fecha (YYYY-MM-DD)") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusDate)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusDescription.requestFocus(); true
+                                        } else false
+                                    },
                                 placeholder = { Text("2024-06-15") }
                             )
                             OutlinedTextField(
                                 value = descriptionInput, onValueChange = { descriptionInput = it },
-                                label = { Text("Descripción") }, modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Descripción") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusDescription)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusTitle.requestFocus(); true
+                                        } else false
+                                    },
                                 minLines = 2
                             )
 

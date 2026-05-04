@@ -7,6 +7,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,6 +30,15 @@ fun AuthScreen(apiClient: ApiClient, tokenStorage: TokenStorage, onSuccess: () -
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
+
+    // Login form focus requesters: email -> password -> email (circular)
+    val loginFocusEmail = remember { FocusRequester() }
+    val loginFocusPassword = remember { FocusRequester() }
+
+    // Register form focus requesters: name -> email -> password -> name (circular)
+    val registerFocusName = remember { FocusRequester() }
+    val registerFocusEmail = remember { FocusRequester() }
+    val registerFocusPassword = remember { FocusRequester() }
 
     Box(
         modifier = Modifier.fillMaxSize().background(MaestroColors.Cream),
@@ -41,14 +57,63 @@ fun AuthScreen(apiClient: ApiClient, tokenStorage: TokenStorage, onSuccess: () -
                 )
 
                 if (state.isRegistering) {
-                    OutlinedTextField(value = name, onValueChange = { name = it },
-                        label = { Text("Nombre completo") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(
+                        value = name, onValueChange = { name = it },
+                        label = { Text("Nombre completo") },
+                        modifier = Modifier.fillMaxWidth()
+                            .focusRequester(registerFocusName)
+                            .onPreviewKeyEvent { e ->
+                                if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                    registerFocusEmail.requestFocus(); true
+                                } else false
+                            }
+                    )
+                    OutlinedTextField(
+                        value = email, onValueChange = { email = it },
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth()
+                            .focusRequester(registerFocusEmail)
+                            .onPreviewKeyEvent { e ->
+                                if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                    registerFocusPassword.requestFocus(); true
+                                } else false
+                            }
+                    )
+                    OutlinedTextField(
+                        value = password, onValueChange = { password = it },
+                        label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth()
+                            .focusRequester(registerFocusPassword)
+                            .onPreviewKeyEvent { e ->
+                                if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                    registerFocusName.requestFocus(); true
+                                } else false
+                            }
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = email, onValueChange = { email = it },
+                        label = { Text("Email") },
+                        modifier = Modifier.fillMaxWidth()
+                            .focusRequester(loginFocusEmail)
+                            .onPreviewKeyEvent { e ->
+                                if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                    loginFocusPassword.requestFocus(); true
+                                } else false
+                            }
+                    )
+                    OutlinedTextField(
+                        value = password, onValueChange = { password = it },
+                        label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth()
+                            .focusRequester(loginFocusPassword)
+                            .onPreviewKeyEvent { e ->
+                                if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                    loginFocusEmail.requestFocus(); true
+                                } else false
+                            }
+                    )
                 }
-                OutlinedTextField(value = email, onValueChange = { email = it },
-                    label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = password, onValueChange = { password = it },
-                    label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth())
 
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 

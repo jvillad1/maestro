@@ -13,7 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +67,10 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
     var dateInput by remember { mutableStateOf("") }
     var topicInput by remember { mutableStateOf("") }
     var paidInput by remember { mutableStateOf(false) }
+
+    // Focus requesters: date -> topic -> date (circular)
+    val focusDate = remember { FocusRequester() }
+    val focusTopic = remember { FocusRequester() }
 
     AppScaffold(Screen.Classes.route, navController) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -155,12 +166,26 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
 
                             OutlinedTextField(
                                 value = dateInput, onValueChange = { dateInput = it },
-                                label = { Text("Fecha (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Fecha (YYYY-MM-DD)") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusDate)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusTopic.requestFocus(); true
+                                        } else false
+                                    },
                                 placeholder = { Text("2024-01-15") }
                             )
                             OutlinedTextField(
                                 value = topicInput, onValueChange = { topicInput = it },
-                                label = { Text("Tema de la clase") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Tema de la clase") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusTopic)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusDate.requestFocus(); true
+                                        } else false
+                                    }
                             )
 
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -11,7 +11,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -51,6 +58,9 @@ fun TasksScreen(apiClient: ApiClient, navController: NavHostController) {
 
     var textInput by remember { mutableStateOf("") }
     var selectedPriority by remember { mutableStateOf(Priority.MEDIA) }
+
+    // Single field — Tab stays on the same field (no-op)
+    val focusText = remember { FocusRequester() }
 
     AppScaffold(Screen.Tasks.route, navController) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -154,7 +164,13 @@ fun TasksScreen(apiClient: ApiClient, navController: NavHostController) {
                             OutlinedTextField(
                                 value = textInput, onValueChange = { textInput = it },
                                 label = { Text("Descripción de la tarea") },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusText)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusText.requestFocus(); true
+                                        } else false
+                                    },
                                 minLines = 2
                             )
 

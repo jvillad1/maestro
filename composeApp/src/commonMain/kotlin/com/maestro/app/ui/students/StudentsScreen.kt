@@ -18,7 +18,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -92,6 +99,14 @@ fun StudentsScreen(apiClient: ApiClient, navController: NavHostController) {
     var notesInput by remember { mutableStateOf("") }
     var selectedLevel by remember { mutableStateOf(Level.INICIAL) }
     var colorIndex by remember { mutableStateOf(0) }
+
+    // Focus requesters: name -> age -> phone -> email -> fee -> notes -> name (circular)
+    val focusName = remember { FocusRequester() }
+    val focusAge = remember { FocusRequester() }
+    val focusPhone = remember { FocusRequester() }
+    val focusEmail = remember { FocusRequester() }
+    val focusFee = remember { FocusRequester() }
+    val focusNotes = remember { FocusRequester() }
 
     AppScaffold(Screen.Students.route, navController) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -169,27 +184,69 @@ fun StudentsScreen(apiClient: ApiClient, navController: NavHostController) {
 
                             OutlinedTextField(
                                 value = nameInput, onValueChange = { nameInput = it },
-                                label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Nombre") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusName)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusAge.requestFocus(); true
+                                        } else false
+                                    }
                             )
                             OutlinedTextField(
                                 value = ageInput, onValueChange = { ageInput = it },
-                                label = { Text("Edad") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Edad") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusAge)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusPhone.requestFocus(); true
+                                        } else false
+                                    }
                             )
                             OutlinedTextField(
                                 value = phoneInput, onValueChange = { phoneInput = it },
-                                label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Teléfono") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusPhone)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusEmail.requestFocus(); true
+                                        } else false
+                                    }
                             )
                             OutlinedTextField(
                                 value = emailInput, onValueChange = { emailInput = it },
-                                label = { Text("Email") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Email") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusEmail)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusFee.requestFocus(); true
+                                        } else false
+                                    }
                             )
                             OutlinedTextField(
                                 value = feeInput, onValueChange = { feeInput = it },
-                                label = { Text("Cuota mensual (COP)") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Cuota mensual (COP)") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusFee)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusNotes.requestFocus(); true
+                                        } else false
+                                    }
                             )
                             OutlinedTextField(
                                 value = notesInput, onValueChange = { notesInput = it },
-                                label = { Text("Notas pedagógicas") }, modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Notas pedagógicas") },
+                                modifier = Modifier.fillMaxWidth()
+                                    .focusRequester(focusNotes)
+                                    .onPreviewKeyEvent { e ->
+                                        if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) {
+                                            focusName.requestFocus(); true
+                                        } else false
+                                    },
                                 minLines = 2
                             )
 
