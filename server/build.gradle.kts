@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.bcrypt)
     implementation(libs.logback)
     testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(kotlin("test"))
 }
 
