@@ -1,9 +1,9 @@
 package com.maestro.app
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.maestro.app.navigation.AppNavigation
 
 @Composable
 fun App() {
-    Text("Maestro")
+    AppNavigation()
 }
