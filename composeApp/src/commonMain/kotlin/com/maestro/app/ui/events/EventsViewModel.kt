@@ -2,6 +2,8 @@ package com.maestro.app.ui.events
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.maestro.app.dev.USE_MOCK
+import com.maestro.app.dev.mockEvents
 import com.maestro.app.network.ApiClient
 import com.maestro.shared.dto.EventRequest
 import com.maestro.shared.model.Event
@@ -26,6 +28,10 @@ class EventsViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun load() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
+            if (USE_MOCK) {
+                _state.value = _state.value.copy(events = mockEvents, isLoading = false)
+                return@launch
+            }
             try {
                 val events = apiClient.getEvents()
                 _state.value = _state.value.copy(

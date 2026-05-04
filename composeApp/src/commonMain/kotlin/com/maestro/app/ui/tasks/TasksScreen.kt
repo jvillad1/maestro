@@ -26,10 +26,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import com.maestro.app.navigation.Screen
 import com.maestro.app.network.ApiClient
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.EmptyState
 import com.maestro.shared.model.Priority
 import com.maestro.shared.model.Task
 
@@ -92,6 +95,15 @@ fun TasksScreen(apiClient: ApiClient, navController: NavHostController) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = MaestroColors.Gold)
                     }
+                } else if (state.tasks.isEmpty()) {
+                    EmptyState(
+                        icon = Icons.Default.CheckCircle,
+                        title = "Todo al día",
+                        subtitle = "No tienes tareas pendientes.\n¡Buen trabajo!",
+                        bgColor = MaestroColors.Forest,
+                        actionLabel = "Nueva tarea",
+                        onAction = { vm.showAddDialog() }
+                    )
                 } else {
                     val grouped = state.tasks.groupBy { it.priority }
                     val priorityOrder = listOf(Priority.ALTA, Priority.MEDIA, Priority.BAJA)

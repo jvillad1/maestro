@@ -2,6 +2,11 @@ package com.maestro.app.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.maestro.app.dev.USE_MOCK
+import com.maestro.app.dev.mockClasses
+import com.maestro.app.dev.mockEvents
+import com.maestro.app.dev.mockStudents
+import com.maestro.app.dev.mockTasks
 import com.maestro.app.network.ApiClient
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Event
@@ -31,6 +36,22 @@ class DashboardViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun load() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
+            if (USE_MOCK) {
+                val totalIncome = mockStudents.sumOf { it.monthlyFee }
+                val pendingIncome = mockStudents.filter { s ->
+                    mockClasses.none { it.studentId == s.id && it.paid }
+                }.sumOf { it.monthlyFee }
+                _state.value = DashboardState(
+                    students = mockStudents,
+                    recentClasses = mockClasses,
+                    upcomingEvents = mockEvents,
+                    pendingTasks = mockTasks.filter { !it.done },
+                    totalIncome = totalIncome,
+                    pendingIncome = pendingIncome,
+                    isLoading = false
+                )
+                return@launch
+            }
             try {
                 val students = apiClient.getStudents()
                 val currentMonth = getCurrentMonth()

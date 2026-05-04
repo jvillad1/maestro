@@ -2,6 +2,8 @@ package com.maestro.app.ui.students
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.maestro.app.dev.USE_MOCK
+import com.maestro.app.dev.mockStudents
 import com.maestro.app.network.ApiClient
 import com.maestro.shared.dto.StudentRequest
 import com.maestro.shared.model.ClassEntry
@@ -34,6 +36,10 @@ class StudentsViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun load() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
+            if (USE_MOCK) {
+                _state.value = _state.value.copy(students = mockStudents, isLoading = false)
+                return@launch
+            }
             try {
                 val students = apiClient.getStudents()
                 _state.value = _state.value.copy(students = students, isLoading = false)

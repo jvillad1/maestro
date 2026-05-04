@@ -2,6 +2,9 @@ package com.maestro.app.ui.finances
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.maestro.app.dev.USE_MOCK
+import com.maestro.app.dev.mockClasses
+import com.maestro.app.dev.mockStudents
 import com.maestro.app.network.ApiClient
 import com.maestro.app.ui.dashboard.getCurrentMonth
 import com.maestro.shared.model.ClassEntry
@@ -54,6 +57,14 @@ class FinancesViewModel(private val apiClient: ApiClient) : ViewModel() {
         viewModelScope.launch {
             val month = getCurrentMonth()
             _state.value = _state.value.copy(isLoading = true, error = null, currentMonth = month)
+            if (USE_MOCK) {
+                _state.value = _state.value.copy(
+                    students = mockStudents,
+                    classes = mockClasses,
+                    isLoading = false
+                )
+                return@launch
+            }
             try {
                 val students = apiClient.getStudents()
                 val classes = apiClient.getClasses(month)

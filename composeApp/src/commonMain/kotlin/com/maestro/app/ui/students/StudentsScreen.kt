@@ -29,11 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
 import com.maestro.app.network.ApiClient
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.EmptyState
 import com.maestro.shared.model.Level
 import com.maestro.shared.model.Student
 
@@ -167,6 +170,15 @@ fun StudentsScreen(apiClient: ApiClient, navController: NavHostController) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = MaestroColors.Gold)
                     }
+                } else if (visibleStudents.isEmpty()) {
+                    EmptyState(
+                        icon = Icons.Default.Person,
+                        title = "Sin estudiantes",
+                        subtitle = if (searchQuery.isBlank()) "Agrega tu primer estudiante\npara comenzar." else "No hay estudiantes que coincidan\ncon \"$searchQuery\".",
+                        bgColor = MaestroColors.Gold,
+                        actionLabel = if (searchQuery.isBlank()) "Nuevo estudiante" else null,
+                        onAction = { vm.showAddDialog() }
+                    )
                 } else {
                     Card(
                         modifier = Modifier.fillMaxWidth().weight(1f),
@@ -202,13 +214,6 @@ fun StudentsScreen(apiClient: ApiClient, navController: NavHostController) {
                                         onClick = { navController.navigate(Screen.StudentDetail.route(student.id)) }
                                     )
                                     HorizontalDivider(color = MaestroColors.LightGold.copy(alpha = 0.6f))
-                                }
-                                if (visibleStudents.isEmpty()) {
-                                    item {
-                                        Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                                            Text("Sin resultados", color = MaestroColors.Muted, fontSize = 13.sp)
-                                        }
-                                    }
                                 }
                             }
                         }

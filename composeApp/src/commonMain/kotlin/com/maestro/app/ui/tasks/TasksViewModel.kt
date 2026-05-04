@@ -2,6 +2,8 @@ package com.maestro.app.ui.tasks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.maestro.app.dev.USE_MOCK
+import com.maestro.app.dev.mockTasks
 import com.maestro.app.network.ApiClient
 import com.maestro.shared.dto.TaskRequest
 import com.maestro.shared.model.Priority
@@ -26,6 +28,10 @@ class TasksViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun load() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
+            if (USE_MOCK) {
+                _state.value = _state.value.copy(tasks = mockTasks, isLoading = false)
+                return@launch
+            }
             try {
                 val tasks = apiClient.getTasks()
                 _state.value = _state.value.copy(tasks = tasks, isLoading = false)

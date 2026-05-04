@@ -26,11 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
 import com.maestro.app.network.ApiClient
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.EmptyState
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Student
 
@@ -108,13 +111,14 @@ fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
                         CircularProgressIndicator(color = MaestroColors.Gold)
                     }
                 } else if (state.classes.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("♬", fontSize = 32.sp)
-                            Text("Sin clases este mes", color = MaestroColors.Muted, fontSize = 14.sp)
-                            Text("Registra la primera clase del período.", color = MaestroColors.Muted, fontSize = 12.sp)
-                        }
-                    }
+                    EmptyState(
+                        icon = Icons.Default.DateRange,
+                        title = "Sin clases este mes",
+                        subtitle = "Registra la primera clase del período\npara llevar el seguimiento.",
+                        bgColor = MaestroColors.Terra,
+                        actionLabel = "Registrar clase",
+                        onAction = { vm.showAddDialog() }
+                    )
                 } else {
                     Card(
                         modifier = Modifier.fillMaxWidth().weight(1f),

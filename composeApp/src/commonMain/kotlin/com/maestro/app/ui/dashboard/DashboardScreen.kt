@@ -111,8 +111,8 @@ fun DashboardScreen(
                             elevation = CardDefaults.cardElevation(1.dp)
                         ) {
                             if (state.recentClasses.isEmpty()) {
-                                Box(Modifier.fillMaxWidth().padding(28.dp), contentAlignment = Alignment.Center) {
-                                    Text("Sin clases registradas", color = MaestroColors.Muted, fontSize = 13.sp)
+                                Box(Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
+                                    Text("Sin clases este mes", fontSize = 12.sp, color = MaestroColors.Muted)
                                 }
                             } else {
                                 Column {

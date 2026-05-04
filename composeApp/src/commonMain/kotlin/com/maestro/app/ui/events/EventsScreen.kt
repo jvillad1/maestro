@@ -26,10 +26,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Event
 import com.maestro.app.navigation.Screen
 import com.maestro.app.network.ApiClient
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.EmptyState
 import com.maestro.app.ui.dashboard.getCurrentDate
 import com.maestro.shared.model.Event
 import com.maestro.shared.model.EventType
@@ -107,9 +110,14 @@ fun EventsScreen(apiClient: ApiClient, navController: NavHostController) {
                         CircularProgressIndicator(color = MaestroColors.Gold)
                     }
                 } else if (state.events.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Sin eventos próximos", color = MaestroColors.Muted)
-                    }
+                    EmptyState(
+                        icon = Icons.Default.Event,
+                        title = "Sin eventos próximos",
+                        subtitle = "Agrega recitales, masterclasses\ny evaluaciones aquí.",
+                        bgColor = MaestroColors.Forest,
+                        actionLabel = "Nuevo evento",
+                        onAction = { vm.showAddDialog() }
+                    )
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 200.dp),

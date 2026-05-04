@@ -1,0 +1,39 @@
+package com.maestro.app.dev
+
+import com.maestro.shared.model.*
+
+const val USE_MOCK = true  // flip to false to use real server
+
+val mockStudents = listOf(
+    Student(1L, 1L, "Sofía Martínez",   17, Level.AVANZADO,   "+57 310 000 0001", "sofia@mail.com",   180_000L, "Muy talentosa", "2023-03-01", "#B85C38"),
+    Student(2L, 1L, "Carlos López",     14, Level.INTERMEDIO,  "+57 310 000 0002", "carlos@mail.com",  150_000L, "Buen ritmo",    "2023-08-15", "#C9A84C"),
+    Student(3L, 1L, "Ana García",       10, Level.ELEMENTAL,   "+57 310 000 0003", "ana@mail.com",     120_000L, "Principiante",  "2024-02-10", "#2D5016"),
+    Student(4L, 1L, "Miguel Torres",    22, Level.AVANZADO,    "+57 310 000 0004", "miguel@mail.com",  200_000L, "Universitario", "2022-11-20", "#2C1810"),
+    Student(5L, 1L, "Laura Sánchez",    13, Level.INTERMEDIO,  "+57 310 000 0005", "laura@mail.com",   150_000L, "Dedicada",      "2024-01-05", "#8B4513"),
+)
+
+val mockClasses = listOf(
+    ClassEntry(1L,  1L, "2026-05-02", "Escalas mayores y menores",    paid = true),
+    ClassEntry(2L,  2L, "2026-05-02", "Arpegios en Sol mayor",         paid = true),
+    ClassEntry(3L,  3L, "2026-05-03", "Posición de manos",             paid = false),
+    ClassEntry(4L,  4L, "2026-05-03", "Bach: Invención No. 1",         paid = true),
+    ClassEntry(5L,  1L, "2026-05-05", "Chopin: Nocturno Op. 9",        paid = false),
+    ClassEntry(6L,  5L, "2026-05-05", "Lectura a primera vista",        paid = true),
+    ClassEntry(7L,  2L, "2026-05-07", "Beethoven: Para Elisa",         paid = false),
+    ClassEntry(8L,  3L, "2026-05-08", "Teoría: figuras rítmicas",      paid = false),
+)
+
+val mockTasks = listOf(
+    Task(1L, 1L, "Preparar repertorio para recital de junio",   Priority.ALTA,  done = false),
+    Task(2L, 1L, "Enviar facturas del mes de abril",            Priority.ALTA,  done = false),
+    Task(3L, 1L, "Revisar progreso de Ana García",              Priority.MEDIA, done = false),
+    Task(4L, 1L, "Imprimir partituras Chopin para Sofía",       Priority.MEDIA, done = true),
+    Task(5L, 1L, "Organizar carpetas de partituras",            Priority.BAJA,  done = false),
+)
+
+val mockEvents = listOf(
+    Event(1L, 1L, "Recital de Fin de Semestre",  "2026-06-14", EventType.RECITAL,     "Auditorio principal del conservatorio"),
+    Event(2L, 1L, "Masterclass Piano Romántico", "2026-05-20", EventType.MASTERCLASS, "Invitado: Prof. Diego Reyes"),
+    Event(3L, 1L, "Evaluación Intermedia",        "2026-05-28", EventType.EVALUACION,  "Evaluación de todos los estudiantes"),
+    Event(4L, 1L, "Clase de Teoría Musical",      "2026-05-12", EventType.OTRO,        "Grupo de teoría del conservatorio"),
+)

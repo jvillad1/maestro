@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.navigation.Screen
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.theme.frauncesFamily
@@ -144,6 +145,24 @@ fun MaestroSidebar(
                     }
                     Icon(Icons.Default.ChevronRight, contentDescription = null,
                         tint = MaestroColors.Muted, modifier = Modifier.size(16.dp))
+                }
+
+                if (USE_MOCK) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaestroColors.Terra.copy(alpha = 0.10f))
+                            .padding(vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "● MODO DEMO",
+                            fontSize = 9.sp,
+                            color = MaestroColors.Terra,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.8.sp
+                        )
+                    }
                 }
             }
         }
