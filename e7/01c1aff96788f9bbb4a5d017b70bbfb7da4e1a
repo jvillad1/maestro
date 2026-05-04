@@ -1,0 +1,23 @@
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/components/AppScaffold.kt
+  99e0c11e44e8f1d0 12,35,37-40,43-58,60-98,101,103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "e701c1aff96788f9bbb4a5d017b70bbfb7da4e1a",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 63,
+      "total_deletions": 15,
+      "accepted_lines": 63,
+      "overriden_lines": 0
+    }
+  }
+}
