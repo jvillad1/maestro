@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
 import com.maestro.app.theme.MaestroColors
+import com.maestro.app.theme.frauncesFamily
 
 data class NavTab(val screen: Screen, val label: String, val icon: ImageVector)
 
@@ -239,23 +240,28 @@ fun MaestroExpansiveHeader(
                     verticalAlignment = Alignment.Bottom
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        val firstName = userName.split(" ").firstOrNull() ?: userName
+                        val firstName = userName.split(" ").firstOrNull()?.takeIf { it.isNotBlank() }
+                        val fraunces = frauncesFamily()
                         Row {
                             Text(
-                                "Hola, ",
+                                if (firstName != null) "Hola, " else "Hola.",
+                                fontFamily = fraunces,
                                 fontSize = 30.sp,
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight.Normal,
                                 color = MaestroColors.White,
                                 lineHeight = 34.sp
                             )
-                            Text(
-                                "$firstName.",
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontStyle = FontStyle.Italic,
-                                color = MaestroColors.Gold,
-                                lineHeight = 34.sp
-                            )
+                            if (firstName != null) {
+                                Text(
+                                    "$firstName.",
+                                    fontFamily = fraunces,
+                                    fontSize = 30.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    fontStyle = FontStyle.Italic,
+                                    color = MaestroColors.Gold,
+                                    lineHeight = 34.sp
+                                )
+                            }
                         }
                         if (subtitle.isNotBlank()) {
                             Text(
@@ -382,7 +388,7 @@ private fun dayOfWeek(year: Int, month: Int, day: Int): Int {
     val y = if (month <= 2) year - 1 else year
     val k = y % 100; val j = y / 100
     val h = (day + (13 * (m + 1)) / 5 + k + k / 4 + j / 4 - 2 * j) % 7
-    return ((h + 6) % 7 + 7) % 7  // 0=Mon … 6=Sun
+    return ((h + 5) % 7 + 7) % 7  // 0=Mon … 6=Sun
 }
 
 fun formatHeaderDate(isoDate: String): String {
@@ -390,10 +396,10 @@ fun formatHeaderDate(isoDate: String): String {
     val year = parts.getOrNull(0)?.toIntOrNull() ?: return ""
     val month = parts.getOrNull(1)?.toIntOrNull() ?: return ""
     val day = parts.getOrNull(2)?.toIntOrNull() ?: return ""
-    val dayNames = listOf("LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM")
-    val monthNames = listOf("ENE", "FEB", "MAR", "ABR", "MAY", "JUN",
-        "JUL", "AGO", "SEP", "OCT", "NOV", "DIC")
-    val dayName = dayNames.getOrElse(dayOfWeek(year, month, day)) { "LUN" }
+    val dayNames = listOf("LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO", "DOMINGO")
+    val monthNames = listOf("ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+        "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE")
+    val dayName = dayNames.getOrElse(dayOfWeek(year, month, day)) { "LUNES" }
     val monthName = monthNames.getOrElse(month - 1) { "?" }
     return "$dayName · $day $monthName"
 }

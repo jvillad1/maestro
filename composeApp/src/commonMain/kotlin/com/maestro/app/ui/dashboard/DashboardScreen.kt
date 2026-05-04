@@ -22,6 +22,7 @@ import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
 import com.maestro.app.network.ApiClient
 import com.maestro.app.theme.MaestroColors
+import com.maestro.app.theme.frauncesFamily
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.MaestroExpansiveHeader
 import com.maestro.app.ui.components.formatHeaderDate
@@ -282,7 +283,7 @@ private fun KpiCard(label: String, value: String, hint: String, accent: Color, m
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.7.sp)
-            Text(value, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = accent, lineHeight = 32.sp)
+            Text(value, fontFamily = frauncesFamily(), fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = accent, lineHeight = 32.sp)
             Box(modifier = Modifier.background(accent.copy(alpha = 0.10f), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
                 Text(hint, fontSize = 10.sp, color = accent, fontWeight = FontWeight.Medium)
             }
