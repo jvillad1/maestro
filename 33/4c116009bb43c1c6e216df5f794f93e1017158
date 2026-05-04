@@ -1,0 +1,49 @@
+composeApp/src/androidMain/kotlin/com/maestro/app/MainActivity.kt
+  99e0c11e44e8f1d0 1-15
+composeApp/src/commonMain/kotlin/com/maestro/app/network/ApiClient.kt
+  99e0c11e44e8f1d0 1-84
+composeApp/src/commonMain/kotlin/com/maestro/app/theme/MaestroTheme.kt
+  99e0c11e44e8f1d0 1-15
+composeApp/src/wasmJsMain/resources/styles.css
+  99e0c11e44e8f1d0 1-2
+composeApp/build.gradle.kts
+  99e0c11e44e8f1d0 1-80
+composeApp/src/androidMain/kotlin/com/maestro/app/AppContextHolder.kt
+  99e0c11e44e8f1d0 1-7
+gradle/libs.versions.toml
+  99e0c11e44e8f1d0 3-4,10-11
+composeApp/src/commonMain/kotlin/com/maestro/app/App.kt
+  99e0c11e44e8f1d0 1-9
+composeApp/src/wasmJsMain/kotlin/com/maestro/app/auth/TokenStorage.wasmJs.kt
+  99e0c11e44e8f1d0 1-9
+composeApp/src/wasmJsMain/resources/index.html
+  99e0c11e44e8f1d0 1-14
+composeApp/src/wasmJsMain/kotlin/com/maestro/app/main.kt
+  99e0c11e44e8f1d0 1-12
+composeApp/src/androidMain/kotlin/com/maestro/app/auth/TokenStorage.android.kt
+  99e0c11e44e8f1d0 1-27
+composeApp/src/androidMain/AndroidManifest.xml
+  99e0c11e44e8f1d0 1-18
+composeApp/src/commonMain/kotlin/com/maestro/app/auth/TokenStorage.kt
+  99e0c11e44e8f1d0 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "334c116009bb43c1c6e216df5f794f93e1017158",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 308,
+      "total_deletions": 9,
+      "accepted_lines": 304,
+      "overriden_lines": 0
+    }
+  }
+}
