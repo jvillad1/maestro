@@ -1,0 +1,10 @@
+composeApp/
+.worktrees/
+.gradle/
+build/
+**/.gradle/
+**/build/
+*.md
+.git/
+documentation/
+docs/

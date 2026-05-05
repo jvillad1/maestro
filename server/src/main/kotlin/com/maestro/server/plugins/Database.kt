@@ -59,7 +59,10 @@ object Events : Table("events") {
 fun Application.configureDatabase() {
     val config = environment.config
     val url = config.property("database.url").getString()
-    val driver = config.property("database.driver").getString()
+    val driver = when {
+        url.startsWith("jdbc:postgresql") -> "org.postgresql.Driver"
+        else -> "org.h2.Driver"
+    }
 
     Database.connect(url, driver)
 
