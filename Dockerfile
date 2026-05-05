@@ -10,9 +10,11 @@ COPY build.gradle.kts build.gradle.kts
 COPY shared shared
 COPY server server
 
-# Build server distribution (skips composeApp entirely)
-RUN gradle :server:installDist --no-daemon -x test \
-    --exclude-task :composeApp:compileKotlinWasmJs
+# Remove composeApp from settings so Gradle doesn't look for a missing directory
+RUN sed -i 's/include(":shared", ":server", ":composeApp")/include(":shared", ":server")/' settings.gradle.kts
+
+# Build server distribution
+RUN gradle :server:installDist --no-daemon -x test
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
