@@ -1,11 +1,19 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.shadow)
     application
 }
 
 application {
     mainClass.set("com.maestro.server.ApplicationKt")
+}
+
+tasks.shadowJar {
+    archiveBaseName.set("server")
+    archiveClassifier.set("")
+    archiveVersion.set("")
+    mergeServiceFiles()
 }
 
 dependencies {
