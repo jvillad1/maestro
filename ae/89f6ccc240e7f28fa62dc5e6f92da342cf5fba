@@ -1,0 +1,31 @@
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/components/AppScaffold.kt
+  99e0c11e44e8f1d0 26,147,243-244,247-248,250,254-264,391,399-402
+composeApp/src/commonMain/kotlin/com/maestro/app/App.kt
+  99e0c11e44e8f1d0 5,9-11
+composeApp/src/commonMain/kotlin/com/maestro/app/ui/dashboard/DashboardScreen.kt
+  99e0c11e44e8f1d0 25,286
+composeApp/src/commonMain/kotlin/com/maestro/app/theme/MaestroTheme.kt
+  99e0c11e44e8f1d0 3-5,7-16,32-54
+composeApp/build.gradle.kts
+  99e0c11e44e8f1d0 45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "ae89f6ccc240e7f28fa62dc5e6f92da342cf5fba",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 70,
+      "total_deletions": 19,
+      "accepted_lines": 65,
+      "overriden_lines": 0
+    }
+  }
+}
