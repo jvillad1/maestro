@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import com.maestro.app.auth.TokenStorage
+import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.network.ApiClient
 import com.maestro.app.ui.auth.AuthScreen
 import com.maestro.app.ui.classes.ClassesScreen
@@ -43,14 +44,14 @@ fun AppNavigation() {
     val tokenStorage = remember { TokenStorage() }
     val apiClient = remember { ApiClient(BASE_URL, tokenStorage) }
     val navController = rememberNavController()
-    val startDestination = if (tokenStorage.getToken() != null) Screen.Dashboard.route else Screen.Auth.route
+    val startDestination = if (USE_MOCK || tokenStorage.getToken() != null) Screen.Dashboard.route else Screen.Auth.route
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Auth.route) {
             AuthScreen(apiClient, tokenStorage) { navController.navigate(Screen.Dashboard.route) { popUpTo(0) } }
         }
         composable(Screen.Dashboard.route) {
-            DashboardScreen(apiClient, navController, tokenStorage.getUserName() ?: "")
+            DashboardScreen(apiClient, navController, if (USE_MOCK) "Sofía" else tokenStorage.getUserName() ?: "")
         }
         composable(Screen.Students.route) {
             StudentsScreen(apiClient, navController)
