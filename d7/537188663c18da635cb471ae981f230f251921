@@ -1,0 +1,29 @@
+Procfile
+  99e0c11e44e8f1d0 1
+build-server.sh
+  99e0c11e44e8f1d0 3
+gradle/libs.versions.toml
+  99e0c11e44e8f1d0 58
+server/build.gradle.kts
+  99e0c11e44e8f1d0 4,12-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "d7537188663c18da635cb471ae981f230f251921",
+  "prompts": {
+    "99e0c11e44e8f1d0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fddaa2d-7812-495c-b180-9a5ba07d539e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Juan Camilo Villada Ramirez",
+      "messages": [],
+      "total_additions": 11,
+      "total_deletions": 2,
+      "accepted_lines": 84,
+      "overriden_lines": 0
+    }
+  }
+}
