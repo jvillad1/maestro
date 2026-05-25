@@ -1,5 +1,5 @@
 rootProject.name = "maestro"
-include(":shared", ":server")
+include(":core", ":server")
 
 pluginManagement {
     repositories {

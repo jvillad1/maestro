@@ -1,5 +1,5 @@
 rootProject.name = "maestro"
-include(":shared", ":server", ":composeApp")
+include(":core", ":shared", ":androidApp", ":webApp", ":server")
 
 pluginManagement {
     repositories {
