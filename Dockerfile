@@ -10,11 +10,11 @@ COPY build.gradle.kts build.gradle.kts
 COPY core core
 COPY server server
 
-# Build server distribution
-RUN gradle :server:installDist --no-daemon -x test
+# Build server fat JAR (same pattern as movi: java -jar app.jar)
+RUN gradle :server:shadowJar --no-daemon -x test
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=build /app/server/build/install/server .
+COPY --from=build /app/server/build/libs/server.jar app.jar
 EXPOSE 8080
-CMD ["bin/server"]
+CMD ["java", "-jar", "app.jar"]
