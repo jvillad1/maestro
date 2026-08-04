@@ -9,6 +9,7 @@ fun main(args: Array<String>) = EngineMain.main(args)
 fun Application.module() {
     configureDatabase()
     configureSerialization()
+    configureMonitoring()
     configureCors()
     configureAuth()
     configureRouting()

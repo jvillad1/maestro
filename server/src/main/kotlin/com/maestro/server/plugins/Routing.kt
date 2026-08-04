@@ -11,6 +11,7 @@ import io.ktor.server.routing.*
 fun Application.configureRouting() {
     routing {
         get("/ping") { call.respond(HttpStatusCode.OK, "pong") }
+        get("/health") { call.respond(HttpStatusCode.OK, "OK") }
         authRoutes()
         authenticate("jwt-auth") {
             studentRoutes()
