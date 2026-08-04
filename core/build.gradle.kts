@@ -19,6 +19,9 @@ kotlin {
         }
     }
     jvm()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs { browser() }
 
@@ -31,6 +34,13 @@ kotlin {
             group("nonWasm") {
                 withAndroidTarget()
                 withJvm()
+                group("apple") {
+                    group("ios") {
+                        withIosX64()
+                        withIosArm64()
+                        withIosSimulatorArm64()
+                    }
+                }
             }
         }
     }
@@ -50,6 +60,9 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.sqldelight.sqlite.driver)
+        }
+        iosMain.dependencies {
+            implementation(libs.sqldelight.native.driver)
         }
     }
 }

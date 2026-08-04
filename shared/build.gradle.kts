@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -13,6 +14,15 @@ kotlin {
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+
+    val xcf = XCFramework("ComposeApp")
+    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
+        it.binaries.framework {
+            baseName = "ComposeApp"
+            isStatic = true
+            xcf.add(this)
         }
     }
 
@@ -49,6 +59,10 @@ kotlin {
             dependencies {
                 implementation(libs.ktor.client.js)
             }
+        }
+        iosMain.dependencies {
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
