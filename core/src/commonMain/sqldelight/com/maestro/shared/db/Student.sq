@@ -1,0 +1,48 @@
+CREATE TABLE student (
+    id            TEXT    NOT NULL PRIMARY KEY,
+    userId        INTEGER NOT NULL,
+    name          TEXT    NOT NULL,
+    age           INTEGER NOT NULL,
+    level         TEXT    NOT NULL,
+    phone         TEXT    NOT NULL,
+    email         TEXT    NOT NULL,
+    monthlyFee    INTEGER NOT NULL,
+    notes         TEXT    NOT NULL DEFAULT '',
+    joinDate      TEXT    NOT NULL,
+    color         TEXT    NOT NULL,
+    syncedAt      INTEGER,
+    pendingDelete INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX idx_student_unsynced ON student(syncedAt) WHERE syncedAt IS NULL;
+
+selectAll:
+SELECT * FROM student WHERE userId = :userId AND pendingDelete = 0 ORDER BY name;
+
+selectById:
+SELECT * FROM student WHERE id = :id;
+
+selectUnsynced:
+SELECT * FROM student WHERE userId = :userId AND syncedAt IS NULL AND pendingDelete = 0;
+
+selectPendingDelete:
+SELECT * FROM student WHERE userId = :userId AND pendingDelete = 1;
+
+upsert:
+INSERT OR REPLACE INTO student(id, userId, name, age, level, phone, email, monthlyFee, notes, joinDate, color, syncedAt, pendingDelete)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+markSynced:
+UPDATE student SET syncedAt = :syncedAt WHERE id = :id;
+
+markPendingDelete:
+UPDATE student SET pendingDelete = 1, syncedAt = NULL WHERE id = :id;
+
+delete:
+DELETE FROM student WHERE id = :id;
+
+deleteSyncedAbsent:
+DELETE FROM student WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0 AND id NOT IN :ids;
+
+deleteAllSynced:
+DELETE FROM student WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0;

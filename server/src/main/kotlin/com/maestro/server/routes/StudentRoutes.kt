@@ -44,27 +44,40 @@ fun Route.studentRoutes() {
         post {
             val uid = call.principal<JWTPrincipal>()!!.userId()
             val req = call.receive<StudentRequest>()
+            val sid = req.id ?: java.util.UUID.randomUUID().toString()
             val student = transaction {
-                val id = Students.insert {
-                    it[userId] = uid
-                    it[name] = req.name
-                    it[age] = req.age
-                    it[level] = req.level.name
-                    it[phone] = req.phone
-                    it[email] = req.email
-                    it[monthlyFee] = req.monthlyFee
-                    it[notes] = req.notes
-                    it[joinDate] = LocalDate.now().toString()
-                    it[color] = req.color
-                }[Students.id]
-                Students.selectAll().where { Students.id eq id }.single().toStudent()
+                val exists = Students.selectAll()
+                    .where { (Students.id eq sid) and (Students.userId eq uid) }.count() > 0
+                if (exists) {
+                    // Idempotent sync retry: same client id upserts instead of duplicating
+                    Students.update({ (Students.id eq sid) and (Students.userId eq uid) }) {
+                        it[name] = req.name; it[age] = req.age; it[level] = req.level.name
+                        it[phone] = req.phone; it[email] = req.email; it[monthlyFee] = req.monthlyFee
+                        it[notes] = req.notes; it[color] = req.color
+                    }
+                } else {
+                    Students.insert {
+                        it[id] = sid
+                        it[userId] = uid
+                        it[name] = req.name
+                        it[age] = req.age
+                        it[level] = req.level.name
+                        it[phone] = req.phone
+                        it[email] = req.email
+                        it[monthlyFee] = req.monthlyFee
+                        it[notes] = req.notes
+                        it[joinDate] = LocalDate.now().toString()
+                        it[color] = req.color
+                    }
+                }
+                Students.selectAll().where { Students.id eq sid }.single().toStudent()
             }
             call.respond(HttpStatusCode.Created, student)
         }
 
         get("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val sid = call.parameters["id"]!!.toLong()
+            val sid = call.parameters["id"]!!
             val student = transaction {
                 Students.selectAll().where { (Students.id eq sid) and (Students.userId eq uid) }.singleOrNull()?.toStudent()
             }
@@ -73,7 +86,7 @@ fun Route.studentRoutes() {
 
         put("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val sid = call.parameters["id"]!!.toLong()
+            val sid = call.parameters["id"]!!
             val req = call.receive<StudentRequest>()
             val updated = transaction {
                 val count = Students.update({ (Students.id eq sid) and (Students.userId eq uid) }) {
@@ -89,7 +102,7 @@ fun Route.studentRoutes() {
 
         delete("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val sid = call.parameters["id"]!!.toLong()
+            val sid = call.parameters["id"]!!
             val count = transaction {
                 Students.deleteWhere { (Students.id eq sid) and (Students.userId eq uid) }
             }

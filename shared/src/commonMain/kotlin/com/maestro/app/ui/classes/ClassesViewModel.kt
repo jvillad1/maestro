@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.dev.mockClasses
 import com.maestro.app.dev.mockStudents
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.ui.dashboard.getCurrentMonth
 import com.maestro.shared.dto.ClassEntryRequest
 import com.maestro.shared.model.ClassEntry
@@ -23,7 +23,7 @@ data class ClassesState(
     val error: String? = null
 )
 
-class ClassesViewModel(private val apiClient: ApiClient) : ViewModel() {
+class ClassesViewModel(private val repository: MaestroRepository) : ViewModel() {
     private val _state = MutableStateFlow(ClassesState())
     val state: StateFlow<ClassesState> = _state
 
@@ -42,8 +42,8 @@ class ClassesViewModel(private val apiClient: ApiClient) : ViewModel() {
                 return@launch
             }
             try {
-                val students = apiClient.getStudents()
-                val classes = apiClient.getClasses(month)
+                val students = repository.getStudents()
+                val classes = repository.getClasses(month)
                 _state.value = _state.value.copy(
                     students = students,
                     classes = classes.sortedByDescending { it.date },
@@ -58,11 +58,11 @@ class ClassesViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun showAddDialog() { _state.value = _state.value.copy(showAddDialog = true) }
     fun hideAddDialog() { _state.value = _state.value.copy(showAddDialog = false) }
 
-    fun createClass(studentId: Long, date: String, topic: String, paid: Boolean) {
+    fun createClass(studentId: String, date: String, topic: String, paid: Boolean) {
         viewModelScope.launch {
             try {
                 val req = ClassEntryRequest(studentId, date, topic, paid)
-                val created = apiClient.createClass(req)
+                val created = repository.createClass(req)
                 _state.value = _state.value.copy(
                     classes = (_state.value.classes + created).sortedByDescending { it.date },
                     showAddDialog = false
@@ -76,7 +76,7 @@ class ClassesViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun togglePaid(classEntry: ClassEntry) {
         viewModelScope.launch {
             try {
-                val updated = apiClient.updateClass(
+                val updated = repository.updateClass(
                     classEntry.id,
                     ClassEntryRequest(
                         studentId = classEntry.studentId,

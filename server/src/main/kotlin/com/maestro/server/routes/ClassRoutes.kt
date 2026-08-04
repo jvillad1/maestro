@@ -44,19 +44,28 @@ fun Route.classRoutes() {
                 Students.selectAll().where { (Students.id eq req.studentId) and (Students.userId eq uid) }.count() > 0
             }
             if (!studentOwned) { call.respond(HttpStatusCode.Forbidden); return@post }
+            val cid = req.id ?: java.util.UUID.randomUUID().toString()
             val entry = transaction {
-                val id = ClassEntries.insert {
-                    it[studentId] = req.studentId; it[date] = req.date
-                    it[topic] = req.topic; it[paid] = req.paid
-                }[ClassEntries.id]
-                ClassEntries.selectAll().where { ClassEntries.id eq id }.single().toClassEntry()
+                val exists = ClassEntries.selectAll().where { ClassEntries.id eq cid }.count() > 0
+                if (exists) {
+                    ClassEntries.update({ ClassEntries.id eq cid }) {
+                        it[studentId] = req.studentId; it[date] = req.date
+                        it[topic] = req.topic; it[paid] = req.paid
+                    }
+                } else {
+                    ClassEntries.insert {
+                        it[id] = cid; it[studentId] = req.studentId; it[date] = req.date
+                        it[topic] = req.topic; it[paid] = req.paid
+                    }
+                }
+                ClassEntries.selectAll().where { ClassEntries.id eq cid }.single().toClassEntry()
             }
             call.respond(HttpStatusCode.Created, entry)
         }
 
         put("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val cid = call.parameters["id"]!!.toLong()
+            val cid = call.parameters["id"]!!
             val req = call.receive<ClassEntryRequest>()
             val updated = transaction {
                 val owned = (ClassEntries innerJoin Students)
@@ -72,7 +81,7 @@ fun Route.classRoutes() {
 
         delete("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val cid = call.parameters["id"]!!.toLong()
+            val cid = call.parameters["id"]!!
             val count = transaction {
                 val owned = (ClassEntries innerJoin Students)
                     .selectAll().where { (ClassEntries.id eq cid) and (Students.userId eq uid) }.count()

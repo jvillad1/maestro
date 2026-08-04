@@ -29,7 +29,7 @@ import androidx.navigation.NavHostController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Event
 import com.maestro.app.navigation.Screen
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.EmptyState
@@ -64,8 +64,8 @@ private fun extractMonthName(date: String): String {
 }
 
 @Composable
-fun EventsScreen(apiClient: ApiClient, navController: NavHostController) {
-    val vm = viewModel { EventsViewModel(apiClient) }
+fun EventsScreen(repository: MaestroRepository, navController: NavHostController) {
+    val vm = viewModel { EventsViewModel(repository) }
     val state by vm.state.collectAsStateWithLifecycle()
     val today = remember { getCurrentDate() }
 

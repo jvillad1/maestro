@@ -33,7 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.EmptyState
@@ -92,8 +92,8 @@ private val levelObjectives = mapOf(
 private val presetColors = listOf("#C9A84C", "#B85C38", "#2D5016", "#3D6E8F", "#8B4A8B", "#4A8B6F")
 
 @Composable
-fun StudentsScreen(apiClient: ApiClient, navController: NavHostController) {
-    val vm = viewModel { StudentsViewModel(apiClient) }
+fun StudentsScreen(repository: MaestroRepository, navController: NavHostController) {
+    val vm = viewModel { StudentsViewModel(repository) }
     val state by vm.state.collectAsStateWithLifecycle()
 
     var searchQuery by remember { mutableStateOf("") }
@@ -412,8 +412,8 @@ private fun StudentTableRow(student: Student, onClick: () -> Unit) {
 }
 
 @Composable
-fun StudentDetailScreen(studentId: Long, apiClient: ApiClient, navController: NavHostController) {
-    val vm = viewModel { StudentDetailViewModel(apiClient) }
+fun StudentDetailScreen(studentId: String, repository: MaestroRepository, navController: NavHostController) {
+    val vm = viewModel { StudentDetailViewModel(repository) }
     val state by vm.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(studentId) { vm.load(studentId) }

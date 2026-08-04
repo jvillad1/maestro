@@ -30,6 +30,7 @@ class AuthViewModel(
                 val response = apiClient.login(LoginRequest(email, password))
                 tokenStorage.saveToken(response.token)
                 tokenStorage.saveUserName(response.user.name)
+                tokenStorage.saveUserId(response.user.id)
                 onSuccess()
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = "Credenciales incorrectas", isLoading = false)
@@ -44,6 +45,7 @@ class AuthViewModel(
                 val response = apiClient.register(RegisterRequest(email, password, name))
                 tokenStorage.saveToken(response.token)
                 tokenStorage.saveUserName(response.user.name)
+                tokenStorage.saveUserId(response.user.id)
                 onSuccess()
             } catch (e: Exception) {
                 _state.value = _state.value.copy(error = "Error al registrar. Intenta de nuevo.", isLoading = false)

@@ -32,18 +32,27 @@ fun Route.taskRoutes() {
         post {
             val uid = call.principal<JWTPrincipal>()!!.userId()
             val req = call.receive<TaskRequest>()
+            val tid = req.id ?: java.util.UUID.randomUUID().toString()
             val task = transaction {
-                val id = Tasks.insert {
-                    it[userId] = uid; it[text] = req.text
-                    it[priority] = req.priority.name; it[done] = req.done
-                }[Tasks.id]
-                Tasks.selectAll().where { Tasks.id eq id }.single().toTask()
+                val exists = Tasks.selectAll()
+                    .where { (Tasks.id eq tid) and (Tasks.userId eq uid) }.count() > 0
+                if (exists) {
+                    Tasks.update({ (Tasks.id eq tid) and (Tasks.userId eq uid) }) {
+                        it[text] = req.text; it[priority] = req.priority.name; it[done] = req.done
+                    }
+                } else {
+                    Tasks.insert {
+                        it[id] = tid; it[userId] = uid; it[text] = req.text
+                        it[priority] = req.priority.name; it[done] = req.done
+                    }
+                }
+                Tasks.selectAll().where { Tasks.id eq tid }.single().toTask()
             }
             call.respond(HttpStatusCode.Created, task)
         }
         put("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val tid = call.parameters["id"]!!.toLong()
+            val tid = call.parameters["id"]!!
             val req = call.receive<TaskRequest>()
             val updated = transaction {
                 val count = Tasks.update({ (Tasks.id eq tid) and (Tasks.userId eq uid) }) {
@@ -55,7 +64,7 @@ fun Route.taskRoutes() {
         }
         delete("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val tid = call.parameters["id"]!!.toLong()
+            val tid = call.parameters["id"]!!
             val count = transaction { Tasks.deleteWhere { (Tasks.id eq tid) and (Tasks.userId eq uid) } }
             if (count == 0) call.respond(HttpStatusCode.NotFound) else call.respond(HttpStatusCode.NoContent)
         }

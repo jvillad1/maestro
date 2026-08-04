@@ -20,7 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.theme.frauncesFamily
 import com.maestro.app.ui.components.AppScaffold
@@ -30,11 +30,11 @@ import com.maestro.shared.model.Task
 
 @Composable
 fun DashboardScreen(
-    apiClient: ApiClient,
+    repository: MaestroRepository,
     navController: NavHostController,
     userName: String = ""
 ) {
-    val vm = viewModel { DashboardViewModel(apiClient) }
+    val vm = viewModel { DashboardViewModel(repository) }
     val state by vm.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {

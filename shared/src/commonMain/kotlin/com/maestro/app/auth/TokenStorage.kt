@@ -6,4 +6,6 @@ expect class TokenStorage() {
     fun clearToken()
     fun getUserName(): String?
     fun saveUserName(name: String)
+    fun getUserId(): Long?
+    fun saveUserId(id: Long)
 }

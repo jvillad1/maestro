@@ -1,0 +1,53 @@
+CREATE TABLE class_entry (
+    id            TEXT    NOT NULL PRIMARY KEY,
+    userId        INTEGER NOT NULL,
+    studentId     TEXT    NOT NULL,
+    date          TEXT    NOT NULL,
+    topic         TEXT    NOT NULL,
+    paid          INTEGER NOT NULL DEFAULT 0,
+    syncedAt      INTEGER,
+    pendingDelete INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX idx_class_student ON class_entry(studentId);
+CREATE INDEX idx_class_unsynced ON class_entry(syncedAt) WHERE syncedAt IS NULL;
+
+selectAll:
+SELECT * FROM class_entry WHERE userId = :userId AND pendingDelete = 0 ORDER BY date DESC;
+
+selectByMonth:
+SELECT * FROM class_entry WHERE userId = :userId AND pendingDelete = 0 AND date LIKE :monthPrefix ORDER BY date DESC;
+
+selectById:
+SELECT * FROM class_entry WHERE id = :id;
+
+selectUnsynced:
+SELECT * FROM class_entry WHERE userId = :userId AND syncedAt IS NULL AND pendingDelete = 0;
+
+selectPendingDelete:
+SELECT * FROM class_entry WHERE userId = :userId AND pendingDelete = 1;
+
+upsert:
+INSERT OR REPLACE INTO class_entry(id, userId, studentId, date, topic, paid, syncedAt, pendingDelete)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+markSynced:
+UPDATE class_entry SET syncedAt = :syncedAt WHERE id = :id;
+
+markPendingDelete:
+UPDATE class_entry SET pendingDelete = 1, syncedAt = NULL WHERE id = :id;
+
+delete:
+DELETE FROM class_entry WHERE id = :id;
+
+deleteSyncedAbsent:
+DELETE FROM class_entry WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0 AND id NOT IN :ids;
+
+deleteAllSynced:
+DELETE FROM class_entry WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0;
+
+deleteSyncedAbsentInMonth:
+DELETE FROM class_entry WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0 AND date LIKE :monthPrefix AND id NOT IN :ids;
+
+deleteAllSyncedInMonth:
+DELETE FROM class_entry WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0 AND date LIKE :monthPrefix;

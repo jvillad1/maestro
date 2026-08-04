@@ -7,6 +7,7 @@ exposed = "0.55.0"
 h2 = "2.3.232"
 postgresql = "42.7.4"
 hikaricp = "5.1.0"
+sqldelight = "2.0.2"
 bcrypt = "0.10.2"
 lifecycle-viewmodel = "2.9.6"
 navigation-compose = "2.9.2"
@@ -40,6 +41,10 @@ exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "e
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
+sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
+sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 # CMP
@@ -54,6 +59,7 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 
 [plugins]
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

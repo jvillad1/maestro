@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.dev.mockTasks
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.shared.dto.TaskRequest
 import com.maestro.shared.model.Priority
 import com.maestro.shared.model.Task
@@ -19,7 +19,7 @@ data class TasksState(
     val error: String? = null
 )
 
-class TasksViewModel(private val apiClient: ApiClient) : ViewModel() {
+class TasksViewModel(private val repository: MaestroRepository) : ViewModel() {
     private val _state = MutableStateFlow(TasksState())
     val state: StateFlow<TasksState> = _state
 
@@ -33,7 +33,7 @@ class TasksViewModel(private val apiClient: ApiClient) : ViewModel() {
                 return@launch
             }
             try {
-                val tasks = apiClient.getTasks()
+                val tasks = repository.getTasks()
                 _state.value = _state.value.copy(tasks = tasks, isLoading = false)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, error = e.message)
@@ -48,7 +48,7 @@ class TasksViewModel(private val apiClient: ApiClient) : ViewModel() {
         viewModelScope.launch {
             try {
                 val req = TaskRequest(text, priority, false)
-                val created = apiClient.createTask(req)
+                val created = repository.createTask(req)
                 _state.value = _state.value.copy(
                     tasks = _state.value.tasks + created,
                     showAddDialog = false
@@ -62,7 +62,7 @@ class TasksViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun toggleDone(task: Task) {
         viewModelScope.launch {
             try {
-                val updated = apiClient.updateTask(task.id, TaskRequest(task.text, task.priority, !task.done))
+                val updated = repository.updateTask(task.id, TaskRequest(task.text, task.priority, !task.done))
                 _state.value = _state.value.copy(
                     tasks = _state.value.tasks.map { if (it.id == updated.id) updated else it }
                 )
@@ -75,7 +75,7 @@ class TasksViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             try {
-                apiClient.deleteTask(task.id)
+                repository.deleteTask(task.id)
                 _state.value = _state.value.copy(
                     tasks = _state.value.tasks.filter { it.id != task.id }
                 )

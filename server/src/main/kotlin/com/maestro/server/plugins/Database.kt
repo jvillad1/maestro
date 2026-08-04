@@ -16,7 +16,7 @@ object Users : Table("users") {
 }
 
 object Students : Table("students") {
-    val id = long("id").autoIncrement()
+    val id = varchar("id", 36)
     val userId = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val name = varchar("name", 255)
     val age = integer("age")
@@ -31,8 +31,8 @@ object Students : Table("students") {
 }
 
 object ClassEntries : Table("class_entries") {
-    val id = long("id").autoIncrement()
-    val studentId = long("student_id").references(Students.id, onDelete = ReferenceOption.CASCADE)
+    val id = varchar("id", 36)
+    val studentId = varchar("student_id", 36).references(Students.id, onDelete = ReferenceOption.CASCADE)
     val date = varchar("date", 10)
     val topic = varchar("topic", 500)
     val paid = bool("paid").default(false)
@@ -40,7 +40,7 @@ object ClassEntries : Table("class_entries") {
 }
 
 object Tasks : Table("tasks") {
-    val id = long("id").autoIncrement()
+    val id = varchar("id", 36)
     val userId = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val text = varchar("text", 500)
     val priority = varchar("priority", 10)
@@ -49,7 +49,7 @@ object Tasks : Table("tasks") {
 }
 
 object Events : Table("events") {
-    val id = long("id").autoIncrement()
+    val id = varchar("id", 36)
     val userId = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val title = varchar("title", 255)
     val date = varchar("date", 10)
@@ -90,6 +90,20 @@ fun Application.configureDatabase() {
         maximumPoolSize = 10
     })
     Database.connect(dataSource)
+
+    // One-shot migration (2026-08): entity ids moved from BIGINT autoincrement to
+    // client-generated varchar(36). SchemaUtils.create can't alter column types,
+    // so a pre-UUID schema gets its entity tables dropped (test data only).
+    if (driver == "org.postgresql.Driver") {
+        transaction {
+            val idType = exec(
+                "SELECT data_type FROM information_schema.columns WHERE table_name = 'students' AND column_name = 'id'"
+            ) { rs -> if (rs.next()) rs.getString(1) else null }
+            if (idType == "bigint") {
+                exec("DROP TABLE IF EXISTS class_entries, tasks, events, students CASCADE")
+            }
+        }
+    }
 
     transaction {
         SchemaUtils.create(Users, Students, ClassEntries, Tasks, Events)

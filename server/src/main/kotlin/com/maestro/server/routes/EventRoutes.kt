@@ -33,18 +33,28 @@ fun Route.eventRoutes() {
         post {
             val uid = call.principal<JWTPrincipal>()!!.userId()
             val req = call.receive<EventRequest>()
+            val eid = req.id ?: java.util.UUID.randomUUID().toString()
             val event = transaction {
-                val id = Events.insert {
-                    it[userId] = uid; it[title] = req.title; it[date] = req.date
-                    it[type] = req.type.name; it[description] = req.description
-                }[Events.id]
-                Events.selectAll().where { Events.id eq id }.single().toEvent()
+                val exists = Events.selectAll()
+                    .where { (Events.id eq eid) and (Events.userId eq uid) }.count() > 0
+                if (exists) {
+                    Events.update({ (Events.id eq eid) and (Events.userId eq uid) }) {
+                        it[title] = req.title; it[date] = req.date
+                        it[type] = req.type.name; it[description] = req.description
+                    }
+                } else {
+                    Events.insert {
+                        it[id] = eid; it[userId] = uid; it[title] = req.title; it[date] = req.date
+                        it[type] = req.type.name; it[description] = req.description
+                    }
+                }
+                Events.selectAll().where { Events.id eq eid }.single().toEvent()
             }
             call.respond(HttpStatusCode.Created, event)
         }
         put("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val eid = call.parameters["id"]!!.toLong()
+            val eid = call.parameters["id"]!!
             val req = call.receive<EventRequest>()
             val updated = transaction {
                 val count = Events.update({ (Events.id eq eid) and (Events.userId eq uid) }) {
@@ -57,7 +67,7 @@ fun Route.eventRoutes() {
         }
         delete("/{id}") {
             val uid = call.principal<JWTPrincipal>()!!.userId()
-            val eid = call.parameters["id"]!!.toLong()
+            val eid = call.parameters["id"]!!
             val count = transaction { Events.deleteWhere { (Events.id eq eid) and (Events.userId eq uid) } }
             if (count == 0) call.respond(HttpStatusCode.NotFound) else call.respond(HttpStatusCode.NoContent)
         }

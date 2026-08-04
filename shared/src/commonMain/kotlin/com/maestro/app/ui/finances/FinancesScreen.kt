@@ -19,7 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.shared.model.Student
@@ -37,8 +37,8 @@ private fun parseHexColor(hex: String): Color {
 }
 
 @Composable
-fun FinancesScreen(apiClient: ApiClient, navController: NavHostController) {
-    val vm = viewModel { FinancesViewModel(apiClient) }
+fun FinancesScreen(repository: MaestroRepository, navController: NavHostController) {
+    val vm = viewModel { FinancesViewModel(repository) }
     val state by vm.state.collectAsStateWithLifecycle()
 
     AppScaffold(Screen.Finances.route, navController, pageTitle = "Finanzas", breadcrumb = "Gestión") {

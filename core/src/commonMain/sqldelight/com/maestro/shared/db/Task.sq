@@ -1,0 +1,42 @@
+CREATE TABLE task (
+    id            TEXT    NOT NULL PRIMARY KEY,
+    userId        INTEGER NOT NULL,
+    text          TEXT    NOT NULL,
+    priority      TEXT    NOT NULL,
+    done          INTEGER NOT NULL DEFAULT 0,
+    syncedAt      INTEGER,
+    pendingDelete INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX idx_task_unsynced ON task(syncedAt) WHERE syncedAt IS NULL;
+
+selectAll:
+SELECT * FROM task WHERE userId = :userId AND pendingDelete = 0;
+
+selectById:
+SELECT * FROM task WHERE id = :id;
+
+selectUnsynced:
+SELECT * FROM task WHERE userId = :userId AND syncedAt IS NULL AND pendingDelete = 0;
+
+selectPendingDelete:
+SELECT * FROM task WHERE userId = :userId AND pendingDelete = 1;
+
+upsert:
+INSERT OR REPLACE INTO task(id, userId, text, priority, done, syncedAt, pendingDelete)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+markSynced:
+UPDATE task SET syncedAt = :syncedAt WHERE id = :id;
+
+markPendingDelete:
+UPDATE task SET pendingDelete = 1, syncedAt = NULL WHERE id = :id;
+
+delete:
+DELETE FROM task WHERE id = :id;
+
+deleteSyncedAbsent:
+DELETE FROM task WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0 AND id NOT IN :ids;
+
+deleteAllSynced:
+DELETE FROM task WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0;
