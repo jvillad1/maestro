@@ -11,5 +11,7 @@ local.properties
 .superpowers/
 *.env
 .worktrees/
+# Regenerated per-machine; a committed lockfile can bake in a private npm registry (movi ignores it too)
+/kotlin-js-store/
 # Populated at build time by the Dockerfile (wasm web bundle)
 server/src/main/resources/static/
