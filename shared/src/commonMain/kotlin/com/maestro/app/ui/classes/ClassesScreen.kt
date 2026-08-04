@@ -30,7 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.EmptyState
@@ -45,13 +45,13 @@ private fun formatDate(date: String): String {
     return "${parts[2]} $month ${parts[0]}"
 }
 
-private fun studentInitial(students: List<Student>, studentId: Long): String =
+private fun studentInitial(students: List<Student>, studentId: String): String =
     students.find { it.id == studentId }?.name?.firstOrNull()?.uppercase() ?: "?"
 
-private fun studentName(students: List<Student>, studentId: Long): String =
+private fun studentName(students: List<Student>, studentId: String): String =
     students.find { it.id == studentId }?.name ?: "Desconocido"
 
-private fun studentColor(students: List<Student>, studentId: Long): Color {
+private fun studentColor(students: List<Student>, studentId: String): Color {
     val hex = students.find { it.id == studentId }?.color ?: "#C9A84C"
     val clean = hex.trimStart('#')
     if (clean.length < 6) return MaestroColors.Gold
@@ -62,11 +62,11 @@ private fun studentColor(students: List<Student>, studentId: Long): Color {
 }
 
 @Composable
-fun ClassesScreen(apiClient: ApiClient, navController: NavHostController) {
-    val vm = viewModel { ClassesViewModel(apiClient) }
+fun ClassesScreen(repository: MaestroRepository, navController: NavHostController) {
+    val vm = viewModel { ClassesViewModel(repository) }
     val state by vm.state.collectAsStateWithLifecycle()
 
-    var selectedStudentId by remember { mutableStateOf<Long?>(null) }
+    var selectedStudentId by remember { mutableStateOf<String?>(null) }
     var dateInput by remember { mutableStateOf("") }
     var topicInput by remember { mutableStateOf("") }
     var paidInput by remember { mutableStateOf(false) }

@@ -1,0 +1,43 @@
+CREATE TABLE event (
+    id            TEXT    NOT NULL PRIMARY KEY,
+    userId        INTEGER NOT NULL,
+    title         TEXT    NOT NULL,
+    date          TEXT    NOT NULL,
+    type          TEXT    NOT NULL,
+    description   TEXT    NOT NULL DEFAULT '',
+    syncedAt      INTEGER,
+    pendingDelete INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX idx_event_unsynced ON event(syncedAt) WHERE syncedAt IS NULL;
+
+selectAll:
+SELECT * FROM event WHERE userId = :userId AND pendingDelete = 0 ORDER BY date;
+
+selectById:
+SELECT * FROM event WHERE id = :id;
+
+selectUnsynced:
+SELECT * FROM event WHERE userId = :userId AND syncedAt IS NULL AND pendingDelete = 0;
+
+selectPendingDelete:
+SELECT * FROM event WHERE userId = :userId AND pendingDelete = 1;
+
+upsert:
+INSERT OR REPLACE INTO event(id, userId, title, date, type, description, syncedAt, pendingDelete)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+markSynced:
+UPDATE event SET syncedAt = :syncedAt WHERE id = :id;
+
+markPendingDelete:
+UPDATE event SET pendingDelete = 1, syncedAt = NULL WHERE id = :id;
+
+delete:
+DELETE FROM event WHERE id = :id;
+
+deleteSyncedAbsent:
+DELETE FROM event WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0 AND id NOT IN :ids;
+
+deleteAllSynced:
+DELETE FROM event WHERE userId = :userId AND syncedAt IS NOT NULL AND pendingDelete = 0;

@@ -16,7 +16,7 @@ data class User(
 
 @Serializable
 data class Student(
-    val id: Long,
+    val id: String,
     val userId: Long,
     val name: String,
     val age: Int,
@@ -31,8 +31,8 @@ data class Student(
 
 @Serializable
 data class ClassEntry(
-    val id: Long,
-    val studentId: Long,
+    val id: String,
+    val studentId: String,
     val date: String,
     val topic: String,
     val paid: Boolean
@@ -40,7 +40,7 @@ data class ClassEntry(
 
 @Serializable
 data class Task(
-    val id: Long,
+    val id: String,
     val userId: Long,
     val text: String,
     val priority: Priority,
@@ -49,7 +49,7 @@ data class Task(
 
 @Serializable
 data class Event(
-    val id: Long,
+    val id: String,
     val userId: Long,
     val title: String,
     val date: String,

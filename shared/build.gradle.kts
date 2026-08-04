@@ -41,6 +41,7 @@ kotlin {
             implementation(project(":core"))
         }
         androidMain.dependencies {
+            implementation(libs.sqldelight.runtime)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.datastore.preferences)
         }

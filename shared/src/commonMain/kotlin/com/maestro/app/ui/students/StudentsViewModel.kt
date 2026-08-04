@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.dev.mockStudents
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.shared.dto.StudentRequest
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Level
@@ -27,7 +27,7 @@ data class StudentDetailState(
     val error: String? = null
 )
 
-class StudentsViewModel(private val apiClient: ApiClient) : ViewModel() {
+class StudentsViewModel(private val repository: MaestroRepository) : ViewModel() {
     private val _state = MutableStateFlow(StudentsState())
     val state: StateFlow<StudentsState> = _state
 
@@ -41,7 +41,7 @@ class StudentsViewModel(private val apiClient: ApiClient) : ViewModel() {
                 return@launch
             }
             try {
-                val students = apiClient.getStudents()
+                val students = repository.getStudents()
                 _state.value = _state.value.copy(students = students, isLoading = false)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, error = e.message)
@@ -59,7 +59,7 @@ class StudentsViewModel(private val apiClient: ApiClient) : ViewModel() {
         viewModelScope.launch {
             try {
                 val req = StudentRequest(name, age, level, phone, email, monthlyFee, notes, color)
-                val created = apiClient.createStudent(req)
+                val created = repository.createStudent(req)
                 _state.value = _state.value.copy(
                     students = _state.value.students + created,
                     showAddDialog = false
@@ -71,17 +71,17 @@ class StudentsViewModel(private val apiClient: ApiClient) : ViewModel() {
     }
 }
 
-class StudentDetailViewModel(private val apiClient: ApiClient) : ViewModel() {
+class StudentDetailViewModel(private val repository: MaestroRepository) : ViewModel() {
     private val _state = MutableStateFlow(StudentDetailState())
     val state: StateFlow<StudentDetailState> = _state
 
-    fun load(studentId: Long) {
+    fun load(studentId: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
             try {
-                val students = apiClient.getStudents()
+                val students = repository.getStudents()
                 val student = students.find { it.id == studentId }
-                val allClasses = apiClient.getClasses()
+                val allClasses = repository.getClasses()
                 val studentClasses = allClasses.filter { it.studentId == studentId }
                     .sortedByDescending { it.date }
                 _state.value = _state.value.copy(
@@ -98,7 +98,7 @@ class StudentDetailViewModel(private val apiClient: ApiClient) : ViewModel() {
     fun togglePaid(classEntry: ClassEntry) {
         viewModelScope.launch {
             try {
-                val updated = apiClient.updateClass(
+                val updated = repository.updateClass(
                     classEntry.id,
                     com.maestro.shared.dto.ClassEntryRequest(
                         studentId = classEntry.studentId,

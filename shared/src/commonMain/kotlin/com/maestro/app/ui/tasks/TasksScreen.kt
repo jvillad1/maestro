@@ -29,7 +29,7 @@ import androidx.navigation.NavHostController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import com.maestro.app.navigation.Screen
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.EmptyState
@@ -55,8 +55,8 @@ private fun priorityBgColor(priority: Priority): Color = when (priority) {
 }
 
 @Composable
-fun TasksScreen(apiClient: ApiClient, navController: NavHostController) {
-    val vm = viewModel { TasksViewModel(apiClient) }
+fun TasksScreen(repository: MaestroRepository, navController: NavHostController) {
+    val vm = viewModel { TasksViewModel(repository) }
     val state by vm.state.collectAsStateWithLifecycle()
 
     var textInput by remember { mutableStateOf("") }

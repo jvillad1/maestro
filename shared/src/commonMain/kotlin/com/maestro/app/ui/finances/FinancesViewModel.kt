@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.dev.mockClasses
 import com.maestro.app.dev.mockStudents
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.ui.dashboard.getCurrentMonth
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Student
@@ -47,7 +47,7 @@ data class FinancesState(
     }
 }
 
-class FinancesViewModel(private val apiClient: ApiClient) : ViewModel() {
+class FinancesViewModel(private val repository: MaestroRepository) : ViewModel() {
     private val _state = MutableStateFlow(FinancesState())
     val state: StateFlow<FinancesState> = _state
 
@@ -66,8 +66,8 @@ class FinancesViewModel(private val apiClient: ApiClient) : ViewModel() {
                 return@launch
             }
             try {
-                val students = apiClient.getStudents()
-                val classes = apiClient.getClasses(month)
+                val students = repository.getStudents()
+                val classes = repository.getClasses(month)
                 _state.value = _state.value.copy(
                     students = students,
                     classes = classes,

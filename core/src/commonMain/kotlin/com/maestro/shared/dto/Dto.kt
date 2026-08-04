@@ -15,25 +15,29 @@ import kotlinx.serialization.Serializable
     val email: String,
     val monthlyFee: Long,
     val notes: String,
-    val color: String
+    val color: String,
+    val id: String? = null
 )
 
 @Serializable data class ClassEntryRequest(
-    val studentId: Long,
+    val studentId: String,
     val date: String,
     val topic: String,
-    val paid: Boolean
+    val paid: Boolean,
+    val id: String? = null
 )
 
 @Serializable data class TaskRequest(
     val text: String,
     val priority: Priority,
-    val done: Boolean
+    val done: Boolean,
+    val id: String? = null
 )
 
 @Serializable data class EventRequest(
     val title: String,
     val date: String,
     val type: EventType,
-    val description: String
+    val description: String,
+    val id: String? = null
 )

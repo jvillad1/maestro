@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.dev.mockEvents
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.shared.dto.EventRequest
 import com.maestro.shared.model.Event
 import com.maestro.shared.model.EventType
@@ -19,7 +19,7 @@ data class EventsState(
     val error: String? = null
 )
 
-class EventsViewModel(private val apiClient: ApiClient) : ViewModel() {
+class EventsViewModel(private val repository: MaestroRepository) : ViewModel() {
     private val _state = MutableStateFlow(EventsState())
     val state: StateFlow<EventsState> = _state
 
@@ -33,7 +33,7 @@ class EventsViewModel(private val apiClient: ApiClient) : ViewModel() {
                 return@launch
             }
             try {
-                val events = apiClient.getEvents()
+                val events = repository.getEvents()
                 _state.value = _state.value.copy(
                     events = events.sortedBy { it.date },
                     isLoading = false
@@ -51,7 +51,7 @@ class EventsViewModel(private val apiClient: ApiClient) : ViewModel() {
         viewModelScope.launch {
             try {
                 val req = EventRequest(title, date, type, description)
-                val created = apiClient.createEvent(req)
+                val created = repository.createEvent(req)
                 _state.value = _state.value.copy(
                     events = (_state.value.events + created).sortedBy { it.date },
                     showAddDialog = false

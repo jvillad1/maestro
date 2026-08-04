@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import com.maestro.app.auth.TokenStorage
+import com.maestro.app.data.createRepository
 import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.network.ApiClient
 import com.maestro.app.network.apiBaseUrl
@@ -28,7 +29,7 @@ sealed class Screen(val route: String) {
     object Dashboard : Screen("dashboard")
     object Students : Screen("students")
     object StudentDetail : Screen("students/{studentId}") {
-        fun route(id: Long) = "students/$id"
+        fun route(id: String) = "students/$id"
     }
     object Classes : Screen("classes")
     object Finances : Screen("finances")
@@ -42,6 +43,7 @@ sealed class Screen(val route: String) {
 fun AppNavigation() {
     val tokenStorage = remember { TokenStorage() }
     val apiClient = remember { ApiClient(apiBaseUrl(), tokenStorage) }
+    val repository = remember { createRepository(apiClient, tokenStorage) }
     val navController = rememberNavController()
     val startDestination = if (USE_MOCK || tokenStorage.getToken() != null) Screen.Dashboard.route else Screen.Auth.route
 
@@ -50,22 +52,22 @@ fun AppNavigation() {
             AuthScreen(apiClient, tokenStorage) { navController.navigate(Screen.Dashboard.route) { popUpTo(0) } }
         }
         composable(Screen.Dashboard.route) {
-            DashboardScreen(apiClient, navController, if (USE_MOCK) "Sofía" else tokenStorage.getUserName() ?: "")
+            DashboardScreen(repository, navController, if (USE_MOCK) "Sofía" else tokenStorage.getUserName() ?: "")
         }
         composable(Screen.Students.route) {
-            StudentsScreen(apiClient, navController)
+            StudentsScreen(repository, navController)
         }
         composable(
             Screen.StudentDetail.route,
-            arguments = listOf(navArgument("studentId") { type = NavType.LongType })
+            arguments = listOf(navArgument("studentId") { type = NavType.StringType })
         ) { backStack ->
-            val studentId = backStack.arguments?.read { getLong("studentId") } ?: 0L
-            StudentDetailScreen(studentId, apiClient, navController)
+            val studentId = backStack.arguments?.read { getString("studentId") } ?: ""
+            StudentDetailScreen(studentId, repository, navController)
         }
-        composable(Screen.Classes.route) { ClassesScreen(apiClient, navController) }
-        composable(Screen.Finances.route) { FinancesScreen(apiClient, navController) }
-        composable(Screen.Tasks.route) { TasksScreen(apiClient, navController) }
-        composable(Screen.Events.route) { EventsScreen(apiClient, navController) }
+        composable(Screen.Classes.route) { ClassesScreen(repository, navController) }
+        composable(Screen.Finances.route) { FinancesScreen(repository, navController) }
+        composable(Screen.Tasks.route) { TasksScreen(repository, navController) }
+        composable(Screen.Events.route) { EventsScreen(repository, navController) }
         composable(Screen.Metronome.route) { MetronomeScreen(navController) }
         composable(Screen.Guide.route) { GuideScreen(navController) }
     }

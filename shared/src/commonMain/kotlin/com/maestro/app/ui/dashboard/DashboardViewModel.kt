@@ -7,7 +7,7 @@ import com.maestro.app.dev.mockClasses
 import com.maestro.app.dev.mockEvents
 import com.maestro.app.dev.mockStudents
 import com.maestro.app.dev.mockTasks
-import com.maestro.app.network.ApiClient
+import com.maestro.shared.repository.MaestroRepository
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Event
 import com.maestro.shared.model.Student
@@ -27,7 +27,7 @@ data class DashboardState(
     val currentPhraseIndex: Int = 0
 )
 
-class DashboardViewModel(private val apiClient: ApiClient) : ViewModel() {
+class DashboardViewModel(private val repository: MaestroRepository) : ViewModel() {
     private val _state = MutableStateFlow(DashboardState())
     val state: StateFlow<DashboardState> = _state
 
@@ -53,11 +53,11 @@ class DashboardViewModel(private val apiClient: ApiClient) : ViewModel() {
                 return@launch
             }
             try {
-                val students = apiClient.getStudents()
+                val students = repository.getStudents()
                 val currentMonth = getCurrentMonth()
-                val classes = apiClient.getClasses(currentMonth)
-                val events = apiClient.getEvents()
-                val tasks = apiClient.getTasks()
+                val classes = repository.getClasses(currentMonth)
+                val events = repository.getEvents()
+                val tasks = repository.getTasks()
 
                 val totalIncome = students.sumOf { s ->
                     if (classes.any { it.studentId == s.id && it.paid }) s.monthlyFee else 0L
