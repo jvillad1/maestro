@@ -58,13 +58,29 @@ object Events : Table("events") {
 
 fun Application.configureDatabase() {
     val config = environment.config
-    val url = config.property("database.url").getString()
+    val rawUrl = config.property("database.url").getString()
+
+    // Railway/Heroku-style URLs (postgres://user:pass@host:port/db) carry
+    // credentials that JDBC can't read from the URL itself
+    val (url, user, password) = if (rawUrl.startsWith("postgres://") || rawUrl.startsWith("postgresql://")) {
+        val uri = java.net.URI(rawUrl.replaceFirst("postgres://", "postgresql://"))
+        val creds = (uri.userInfo ?: "").split(":", limit = 2)
+        val port = if (uri.port == -1) 5432 else uri.port
+        Triple(
+            "jdbc:postgresql://${uri.host}:$port${uri.path}",
+            creds.getOrElse(0) { "" },
+            creds.getOrElse(1) { "" }
+        )
+    } else {
+        Triple(rawUrl, "", "")
+    }
+
     val driver = when {
         url.startsWith("jdbc:postgresql") -> "org.postgresql.Driver"
         else -> "org.h2.Driver"
     }
 
-    Database.connect(url, driver)
+    Database.connect(url, driver, user = user, password = password)
 
     transaction {
         SchemaUtils.create(Users, Students, ClassEntries, Tasks, Events)

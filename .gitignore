@@ -11,3 +11,5 @@ local.properties
 .superpowers/
 *.env
 .worktrees/
+# Populated at build time by the Dockerfile (wasm web bundle)
+server/src/main/resources/static/
