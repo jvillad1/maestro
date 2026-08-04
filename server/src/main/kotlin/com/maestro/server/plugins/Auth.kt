@@ -21,9 +21,15 @@ object JwtConfig {
         .sign(Algorithm.HMAC256(secret))
 }
 
+private const val DEV_SECRET = "maestro-dev-secret-change-in-production"
+
 fun Application.configureAuth() {
     val config = environment.config
     JwtConfig.secret = config.property("jwt.secret").getString()
+    // Fail fast if the dev fallback secret leaks into a real deployment
+    if (JwtConfig.secret == DEV_SECRET && System.getenv("RAILWAY_ENVIRONMENT") != null) {
+        error("JWT_SECRET env var is not set — refusing to start in production with the dev secret")
+    }
     JwtConfig.issuer = config.property("jwt.issuer").getString()
     JwtConfig.audience = config.property("jwt.audience").getString()
     JwtConfig.expirationDays = config.propertyOrNull("jwt.expirationDays")?.getString()?.toLong() ?: 30

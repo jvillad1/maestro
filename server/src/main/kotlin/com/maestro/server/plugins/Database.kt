@@ -1,5 +1,7 @@
 package com.maestro.server.plugins
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -80,7 +82,14 @@ fun Application.configureDatabase() {
         else -> "org.h2.Driver"
     }
 
-    Database.connect(url, driver, user = user, password = password)
+    val dataSource = HikariDataSource(HikariConfig().apply {
+        jdbcUrl = url
+        driverClassName = driver
+        username = user
+        this.password = password
+        maximumPoolSize = 10
+    })
+    Database.connect(dataSource)
 
     transaction {
         SchemaUtils.create(Users, Students, ClassEntries, Tasks, Events)
