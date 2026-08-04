@@ -1,17 +1,16 @@
 FROM gradle:8.10.2-jdk17 AS build
 WORKDIR /app
+COPY . .
 
-# Copy only what the server build needs
-COPY gradle gradle
-COPY gradlew gradlew
-COPY settings-server.gradle.kts settings.gradle.kts
-COPY gradle.properties gradle.properties
-COPY build.gradle.kts build.gradle.kts
-COPY core core
-COPY server server
+# Build wasmJs production bundle
+RUN gradle :webApp:wasmJsBrowserDistribution --no-daemon --quiet
 
-# Build server fat JAR (same pattern as movi: java -jar app.jar)
-RUN gradle :server:shadowJar --no-daemon -x test
+# Copy web app into server resources so it's bundled in the fat JAR
+RUN mkdir -p server/src/main/resources/static && \
+    cp -r webApp/build/dist/wasmJs/productionExecutable/. server/src/main/resources/static/
+
+# Build server fat JAR (now includes the web app)
+RUN gradle :server:shadowJar --no-daemon --quiet -x test
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app

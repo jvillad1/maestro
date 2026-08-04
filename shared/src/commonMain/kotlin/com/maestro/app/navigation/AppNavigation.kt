@@ -11,6 +11,7 @@ import androidx.savedstate.read
 import com.maestro.app.auth.TokenStorage
 import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.network.ApiClient
+import com.maestro.app.network.apiBaseUrl
 import com.maestro.app.ui.auth.AuthScreen
 import com.maestro.app.ui.classes.ClassesScreen
 import com.maestro.app.ui.dashboard.DashboardScreen
@@ -21,8 +22,6 @@ import com.maestro.app.ui.metronome.MetronomeScreen
 import com.maestro.app.ui.students.StudentDetailScreen
 import com.maestro.app.ui.students.StudentsScreen
 import com.maestro.app.ui.tasks.TasksScreen
-
-const val BASE_URL = "http://localhost:8080"
 
 sealed class Screen(val route: String) {
     object Auth : Screen("auth")
@@ -42,7 +41,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavigation() {
     val tokenStorage = remember { TokenStorage() }
-    val apiClient = remember { ApiClient(BASE_URL, tokenStorage) }
+    val apiClient = remember { ApiClient(apiBaseUrl(), tokenStorage) }
     val navController = rememberNavController()
     val startDestination = if (USE_MOCK || tokenStorage.getToken() != null) Screen.Dashboard.route else Screen.Auth.route
 

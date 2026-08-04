@@ -2,7 +2,7 @@ package com.maestro.app.dev
 
 import com.maestro.shared.model.*
 
-const val USE_MOCK = true  // flip to false to use real server
+const val USE_MOCK = false  // flip to true for demo mode with fake data
 
 val mockStudents = listOf(
     Student(1L, 1L, "Sofía Martínez",   17, Level.AVANZADO,   "+57 310 000 0001", "sofia@mail.com",   180_000L, "Muy talentosa", "2023-03-01", "#B85C38"),

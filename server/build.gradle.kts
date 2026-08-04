@@ -37,7 +37,3 @@ dependencies {
     testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(kotlin("test"))
 }
-
-kotlin {
-    jvmToolchain(17)
-}
