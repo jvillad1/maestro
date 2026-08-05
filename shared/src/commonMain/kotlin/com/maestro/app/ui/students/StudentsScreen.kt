@@ -36,6 +36,8 @@ import com.maestro.app.navigation.Screen
 import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.LocalWindowWidthClass
+import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.EmptyState
 import com.maestro.shared.model.Level
 import com.maestro.shared.model.Student
@@ -197,7 +199,7 @@ fun StudentsScreen(repository: MaestroRepository, navController: NavHostControll
                             ) {
                                 Text("Estudiante", modifier = Modifier.weight(2f), fontSize = 10.sp,
                                     fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.6.sp)
-                                Text("Nivel", modifier = Modifier.weight(1f), fontSize = 10.sp,
+                                if (LocalWindowWidthClass.current == WindowWidthClass.Expanded) Text("Nivel", modifier = Modifier.weight(1f), fontSize = 10.sp,
                                     fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.6.sp)
                                 Text("Cuota/mes", modifier = Modifier.weight(1f), fontSize = 10.sp,
                                     fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.6.sp,
@@ -376,8 +378,8 @@ private fun StudentTableRow(student: Student, onClick: () -> Unit) {
             }
         }
 
-        // Level chip column
-        Box(modifier = Modifier.weight(1f)) {
+        // Level chip column — hidden on phones (name column already carries the info)
+        if (LocalWindowWidthClass.current == WindowWidthClass.Expanded) Box(modifier = Modifier.weight(1f)) {
             if (isOutline) {
                 Box(
                     modifier = Modifier
@@ -399,10 +401,11 @@ private fun StudentTableRow(student: Student, onClick: () -> Unit) {
         Text(
             "$${student.monthlyFee.toString().reversed().chunked(3).joinToString(".").reversed()}/mes",
             modifier = Modifier.weight(1f),
-            fontSize = 13.sp,
+            fontSize = if (LocalWindowWidthClass.current == WindowWidthClass.Compact) 12.sp else 13.sp,
             fontWeight = FontWeight.Medium,
             color = MaestroColors.Espresso,
-            textAlign = TextAlign.End
+            textAlign = TextAlign.End,
+            maxLines = 1
         )
 
         // Arrow
