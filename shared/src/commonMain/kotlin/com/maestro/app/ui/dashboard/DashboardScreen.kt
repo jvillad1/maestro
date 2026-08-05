@@ -24,6 +24,8 @@ import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.theme.frauncesFamily
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.LocalWindowWidthClass
+import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.MaestroExpansiveHeader
 import com.maestro.app.ui.components.formatHeaderDate
 import com.maestro.shared.model.Task
@@ -78,15 +80,22 @@ fun DashboardScreen(
             return@AppScaffold
         }
 
+        val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp, vertical = 24.dp),
+                .padding(horizontal = if (compact) 16.dp else 28.dp, vertical = if (compact) 16.dp else 24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // KPI strip
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            // KPI strip — 4-up on desktop, 2x2 on phones
+            @OptIn(ExperimentalLayoutApi::class)
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                maxItemsInEachRow = if (compact) 2 else 4
+            ) {
                 KpiCard("ESTUDIANTES ACTIVOS", state.students.size.toString(), "+${maxOf(0, state.students.size - 30)} este mes", MaestroColors.Espresso, Modifier.weight(1f))
                 KpiCard("CLASES ESTA SEMANA", state.recentClasses.size.toString(), "${state.recentClasses.size} este mes", MaestroColors.Terra, Modifier.weight(1f))
                 KpiCard("POR COBRAR", dashFormatCOP(state.pendingIncome),
@@ -95,10 +104,9 @@ fun DashboardScreen(
                 KpiCard("PROMEDIO ASISTENCIA", "94%", "Últimos 30 días", MaestroColors.Terra, Modifier.weight(1f))
             }
 
-            // Two-column body
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                // Left — 2fr
-                Column(modifier = Modifier.weight(2f), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            // Body — two columns on desktop, stacked on phones
+            val leftSections: @Composable () -> Unit = {
+                Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
                     // Recent classes
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         DashSectionHeader("Clases recientes", "Ver agenda completa →") {
@@ -154,8 +162,10 @@ fun DashboardScreen(
                     }
                 }
 
-                // Right — 1fr
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            }
+
+            val rightSections: @Composable () -> Unit = {
+                Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
                     // Próximos pagos
                     val unpaidStudents = state.students.filter { s ->
                         state.recentClasses.any { it.studentId == s.id && !it.paid }
@@ -269,6 +279,16 @@ fun DashboardScreen(
                     }
                 }
             }
+
+            if (compact) {
+                leftSections()
+                rightSections()
+            } else {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                    Box(Modifier.weight(2f)) { leftSections() }
+                    Box(Modifier.weight(1f)) { rightSections() }
+                }
+            }
         }
     }
 }
@@ -281,9 +301,10 @@ private fun KpiCard(label: String, value: String, hint: String, accent: Color, m
         colors = CardDefaults.cardColors(containerColor = MaestroColors.White),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
+        val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.7.sp)
-            Text(value, fontFamily = frauncesFamily(), fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = accent, lineHeight = 32.sp)
+            Text(value, fontFamily = frauncesFamily(), fontSize = if (compact) 21.sp else 28.sp, fontWeight = FontWeight.SemiBold, color = accent, lineHeight = if (compact) 25.sp else 32.sp, maxLines = 1)
             Box(modifier = Modifier.background(accent.copy(alpha = 0.10f), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
                 Text(hint, fontSize = 10.sp, color = accent, fontWeight = FontWeight.Medium)
             }

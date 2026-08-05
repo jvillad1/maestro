@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -237,10 +238,11 @@ fun MaestroExpansiveHeader(
                 }
             }
 
+            val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 28.dp, vertical = 20.dp),
+                    .padding(horizontal = if (compact) 16.dp else 28.dp, vertical = if (compact) 14.dp else 20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Date line
@@ -252,12 +254,8 @@ fun MaestroExpansiveHeader(
                     letterSpacing = 1.4.sp
                 )
 
-                // Greeting + actions
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
+                // Greeting + actions — side by side on desktop, stacked on phones
+                val greeting: @Composable () -> Unit = {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         val firstName = userName.split(" ").firstOrNull()?.takeIf { it.isNotBlank() }
                         val fraunces = frauncesFamily()
@@ -292,6 +290,9 @@ fun MaestroExpansiveHeader(
                         }
                     }
 
+                }
+
+                val actions: @Composable () -> Unit = {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         OutlinedButton(
                             onClick = {},
@@ -319,6 +320,20 @@ fun MaestroExpansiveHeader(
                             Spacer(Modifier.width(6.dp))
                             Text("Nueva clase", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaestroColors.Espresso)
                         }
+                    }
+                }
+
+                if (compact) {
+                    greeting()
+                    actions()
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        greeting()
+                        actions()
                     }
                 }
             }
@@ -435,21 +450,40 @@ fun AppScaffold(
     dashboardHeader: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    Row(modifier = Modifier.fillMaxSize()) {
-        MaestroSidebar(currentRoute, navController, userName)
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val widthClass = if (maxWidth < 840.dp) WindowWidthClass.Compact else WindowWidthClass.Expanded
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(MaestroColors.Cream)
-        ) {
-            if (dashboardHeader != null) {
-                dashboardHeader()
+        CompositionLocalProvider(LocalWindowWidthClass provides widthClass) {
+            if (widthClass == WindowWidthClass.Compact) {
+                Column(modifier = Modifier.fillMaxSize().background(MaestroColors.Cream)) {
+                    Box(modifier = Modifier.statusBarsPadding())
+                    if (dashboardHeader != null) {
+                        dashboardHeader()
+                    } else {
+                        MaestroCompactHeader(pageTitle, breadcrumb, subtitle)
+                    }
+                    Box(modifier = Modifier.weight(1f)) { content() }
+                    MaestroBottomBar(currentRoute, navController)
+                }
             } else {
-                MaestroCompactHeader(pageTitle, breadcrumb, subtitle)
+                Row(modifier = Modifier.fillMaxSize()) {
+                    MaestroSidebar(currentRoute, navController, userName)
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .background(MaestroColors.Cream)
+                    ) {
+                        if (dashboardHeader != null) {
+                            dashboardHeader()
+                        } else {
+                            MaestroCompactHeader(pageTitle, breadcrumb, subtitle)
+                        }
+                        Box(modifier = Modifier.weight(1f)) { content() }
+                    }
+                }
             }
-            Box(modifier = Modifier.weight(1f)) { content() }
         }
     }
 }
