@@ -32,6 +32,8 @@ import com.maestro.app.navigation.Screen
 import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.LocalWindowWidthClass
+import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.EmptyState
 import com.maestro.app.ui.dashboard.getCurrentDate
 import com.maestro.shared.model.Event
@@ -134,7 +136,7 @@ fun EventsScreen(repository: MaestroRepository, navController: NavHostController
             // Add Event Dialog
             if (state.showAddDialog) {
                 Box(
-                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)).imePadding(),
                     contentAlignment = Alignment.Center
                 ) {
                     Card(
@@ -191,9 +193,12 @@ fun EventsScreen(repository: MaestroRepository, navController: NavHostController
 
                             // Type selector
                             Text("Tipo de evento", style = MaterialTheme.typography.labelMedium, color = MaestroColors.Muted)
-                            Row(
+                            @OptIn(ExperimentalLayoutApi::class)
+                            FlowRow(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                                maxItemsInEachRow = if (LocalWindowWidthClass.current == WindowWidthClass.Compact) 2 else 4
                             ) {
                                 EventType.entries.forEach { type ->
                                     val sel = type == selectedType

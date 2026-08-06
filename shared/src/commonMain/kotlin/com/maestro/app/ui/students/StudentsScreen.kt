@@ -37,6 +37,7 @@ import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.LocalWindowWidthClass
+import com.maestro.app.ui.components.StatusChip
 import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.EmptyState
 import com.maestro.shared.model.Level
@@ -226,7 +227,7 @@ fun StudentsScreen(repository: MaestroRepository, navController: NavHostControll
             // Add Student Dialog
             if (state.showAddDialog) {
                 Box(
-                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)),
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)).imePadding(),
                     contentAlignment = Alignment.Center
                 ) {
                     Card(
@@ -292,7 +293,8 @@ fun StudentsScreen(repository: MaestroRepository, navController: NavHostControll
                             )
 
                             Text("Nivel", style = MaterialTheme.typography.labelMedium, color = MaestroColors.Muted)
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            @OptIn(ExperimentalLayoutApi::class)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Level.entries.forEach { lvl ->
                                     val sel = lvl == selectedLevel
                                     OutlinedButton(
@@ -398,10 +400,11 @@ private fun StudentTableRow(student: Student, onClick: () -> Unit) {
         }
 
         // Fee column
+        val feeCompact = LocalWindowWidthClass.current == WindowWidthClass.Compact
         Text(
-            "$${student.monthlyFee.toString().reversed().chunked(3).joinToString(".").reversed()}/mes",
+            "$${student.monthlyFee.toString().reversed().chunked(3).joinToString(".").reversed()}" + if (feeCompact) "" else "/mes",
             modifier = Modifier.weight(1f),
-            fontSize = if (LocalWindowWidthClass.current == WindowWidthClass.Compact) 12.sp else 13.sp,
+            fontSize = if (feeCompact) 12.sp else 13.sp,
             fontWeight = FontWeight.Medium,
             color = MaestroColors.Espresso,
             textAlign = TextAlign.End,
@@ -422,9 +425,10 @@ fun StudentDetailScreen(studentId: String, repository: MaestroRepository, navCon
     LaunchedEffect(studentId) { vm.load(studentId) }
 
     AppScaffold(Screen.StudentDetail.route, navController, pageTitle = "Detalle", breadcrumb = "Estudiantes") {
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)) {
+        val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(if (compact) 16.dp else 24.dp)) {
             TextButton(onClick = { navController.popBackStack() }) {
-                Text("← Volver a Estudiantes", color = MaestroColors.Terra)
+                Text("‹ Volver a Estudiantes", color = MaestroColors.Terra)
             }
 
             Spacer(Modifier.height(8.dp))
@@ -506,25 +510,15 @@ fun StudentDetailScreen(studentId: String, repository: MaestroRepository, navCon
                     } else {
                         state.classes.forEach { cls ->
                             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalAlignment = Alignment.CenterVertically) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Box(modifier = Modifier.background(MaestroColors.LightGold, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
-                                        Text(cls.date, fontSize = 10.sp, color = MaestroColors.Espresso)
-                                    }
-                                    Text(cls.topic, style = MaterialTheme.typography.bodySmall, color = MaestroColors.Espresso)
+                                Box(modifier = Modifier.background(MaestroColors.LightGold, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
+                                    Text(cls.date, fontSize = 10.sp, color = MaestroColors.Espresso)
                                 }
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Box(modifier = Modifier.background(
-                                        if (cls.paid) MaestroColors.SoftGreen else Color(0xFFFDE8D8), RoundedCornerShape(4.dp)
-                                    ).padding(horizontal = 6.dp, vertical = 2.dp)) {
-                                        Text(if (cls.paid) "Pagado" else "Pendiente", fontSize = 10.sp,
-                                            color = if (cls.paid) MaestroColors.Forest else MaestroColors.Terra)
-                                    }
-                                    TextButton(onClick = { vm.togglePaid(cls) }, contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)) {
-                                        Text(if (cls.paid) "Desmarcar" else "Marcar pagado", fontSize = 10.sp, color = MaestroColors.Terra)
-                                    }
-                                }
+                                Text(cls.topic, style = MaterialTheme.typography.bodySmall, color = MaestroColors.Espresso,
+                                    maxLines = 1, modifier = Modifier.weight(1f))
+                                // The chip is the toggle — same phone pattern as the Classes screen
+                                StatusChip(paid = cls.paid, onClick = { vm.togglePaid(cls) })
                             }
                             HorizontalDivider(color = MaestroColors.LightGold.copy(alpha = 0.5f))
                         }
