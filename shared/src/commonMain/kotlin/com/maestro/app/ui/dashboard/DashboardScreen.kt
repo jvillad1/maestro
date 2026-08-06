@@ -109,7 +109,7 @@ fun DashboardScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
                     // Recent classes
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        DashSectionHeader("Clases recientes", "Ver agenda completa →") {
+                        DashSectionHeader("Clases recientes", "Ver agenda completa ›") {
                             navController.navigate(Screen.Classes.route)
                         }
                         Card(

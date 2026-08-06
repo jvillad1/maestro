@@ -154,7 +154,7 @@ fun TasksScreen(repository: MaestroRepository, navController: NavHostController)
             // Add Task Dialog
             if (state.showAddDialog) {
                 Box(
-                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)).imePadding(),
                     contentAlignment = Alignment.Center
                 ) {
                     Card(

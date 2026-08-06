@@ -37,6 +37,7 @@ import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.LocalWindowWidthClass
 import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.EmptyState
+import com.maestro.app.ui.components.StatusChip
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Student
 
@@ -168,7 +169,7 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
             // Add Class Dialog
             if (state.showAddDialog) {
                 Box(
-                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)),
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)).imePadding(),
                     contentAlignment = Alignment.Center
                 ) {
                     Card(
@@ -242,22 +243,6 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun StatusChip(paid: Boolean, onClick: (() -> Unit)? = null) {
-    Box(modifier = Modifier
-        .let { if (onClick != null) it.clip(RoundedCornerShape(4.dp)).clickable { onClick() } else it }
-        .background(
-            if (paid) MaestroColors.SoftGreen else Color(0xFFFDE8D8),
-            RoundedCornerShape(4.dp)
-        )
-        .padding(horizontal = 8.dp, vertical = if (onClick != null) 6.dp else 3.dp)
-    ) {
-        Text(if (paid) "Pagado" else "Pendiente", fontSize = 10.sp,
-            color = if (paid) MaestroColors.Forest else MaestroColors.Terra,
-            fontWeight = FontWeight.SemiBold)
     }
 }
 
