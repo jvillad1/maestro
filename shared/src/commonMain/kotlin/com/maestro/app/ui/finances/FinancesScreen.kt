@@ -22,6 +22,8 @@ import com.maestro.app.navigation.Screen
 import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.LocalWindowWidthClass
+import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.shared.model.Student
 
 private fun formatCOP(amount: Long): String =
@@ -42,7 +44,8 @@ fun FinancesScreen(repository: MaestroRepository, navController: NavHostControll
     val state by vm.state.collectAsStateWithLifecycle()
 
     AppScaffold(Screen.Finances.route, navController, pageTitle = "Finanzas", breadcrumb = "Gestión") {
-        Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
+        val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
+        Column(modifier = Modifier.fillMaxSize().padding(if (compact) 16.dp else 20.dp)) {
             // Header
             Text(
                 "Control Financiero",
@@ -127,8 +130,10 @@ private fun FinanceStatCard(
         colors = CardDefaults.cardColors(containerColor = bgColor),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
+        val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(value, color = textColor, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text(value, color = textColor, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold,
+                fontSize = if (compact) 12.5.sp else 14.sp, maxLines = 1)
             Text(label, color = textColor.copy(alpha = 0.7f), style = MaterialTheme.typography.labelSmall)
         }
     }

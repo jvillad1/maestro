@@ -1,6 +1,7 @@
 package com.maestro.app.ui.classes
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,6 +34,8 @@ import com.maestro.app.navigation.Screen
 import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.LocalWindowWidthClass
+import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.EmptyState
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Student
@@ -76,8 +79,9 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
 
     AppScaffold(Screen.Classes.route, navController, pageTitle = "Clases", breadcrumb = "Agenda",
         subtitle = "${state.classes.size} clases registradas") {
+        val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 20.dp)) {
+            Column(modifier = Modifier.fillMaxSize().padding(horizontal = if (compact) 16.dp else 28.dp, vertical = if (compact) 14.dp else 20.dp)) {
                 // Toolbar
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -127,8 +131,8 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                         elevation = CardDefaults.cardElevation(1.dp)
                     ) {
                         Column(modifier = Modifier.fillMaxSize()) {
-                            // Header row
-                            Row(
+                            // Header row — only meaningful with the desktop table layout
+                            if (!compact) Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(MaestroColors.LightGold.copy(alpha = 0.45f))
@@ -143,13 +147,14 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                                     fontWeight = FontWeight.SemiBold, color = MaestroColors.Muted, letterSpacing = 0.6.sp)
                                 Spacer(Modifier.width(100.dp))
                             }
-                            HorizontalDivider(color = MaestroColors.LightGold)
+                            if (!compact) HorizontalDivider(color = MaestroColors.LightGold)
 
                             LazyColumn(modifier = Modifier.weight(1f)) {
                                 items(state.classes) { cls ->
                                     ClassTableRow(
                                         classEntry = cls,
                                         students = state.students,
+                                        compact = compact,
                                         onTogglePaid = { vm.togglePaid(cls) }
                                     )
                                     HorizontalDivider(color = MaestroColors.LightGold.copy(alpha = 0.6f))
@@ -241,8 +246,48 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
 }
 
 @Composable
-private fun ClassTableRow(classEntry: ClassEntry, students: List<Student>, onTogglePaid: () -> Unit) {
+private fun StatusChip(paid: Boolean, onClick: (() -> Unit)? = null) {
+    Box(modifier = Modifier
+        .let { if (onClick != null) it.clip(RoundedCornerShape(4.dp)).clickable { onClick() } else it }
+        .background(
+            if (paid) MaestroColors.SoftGreen else Color(0xFFFDE8D8),
+            RoundedCornerShape(4.dp)
+        )
+        .padding(horizontal = 8.dp, vertical = if (onClick != null) 6.dp else 3.dp)
+    ) {
+        Text(if (paid) "Pagado" else "Pendiente", fontSize = 10.sp,
+            color = if (paid) MaestroColors.Forest else MaestroColors.Terra,
+            fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun ClassTableRow(classEntry: ClassEntry, students: List<Student>, compact: Boolean, onTogglePaid: () -> Unit) {
     val color = studentColor(students, classEntry.studentId)
+
+    if (compact) {
+        // Phone: two-line row, the status chip itself toggles paid
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier.size(34.dp).clip(CircleShape).background(color.copy(alpha = 0.18f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(studentInitial(students, classEntry.studentId), color = color, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(studentName(students, classEntry.studentId),
+                    fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso, maxLines = 1)
+                Text("${formatDate(classEntry.date)} · ${classEntry.topic}",
+                    fontSize = 11.sp, color = MaestroColors.Muted, maxLines = 1)
+            }
+            StatusChip(paid = classEntry.paid, onClick = onTogglePaid)
+        }
+        return
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 13.dp),
@@ -274,17 +319,7 @@ private fun ClassTableRow(classEntry: ClassEntry, students: List<Student>, onTog
 
         // Status + action column
         Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier
-                .background(
-                    if (classEntry.paid) MaestroColors.SoftGreen else Color(0xFFFDE8D8),
-                    RoundedCornerShape(4.dp)
-                )
-                .padding(horizontal = 8.dp, vertical = 3.dp)
-            ) {
-                Text(if (classEntry.paid) "Pagado" else "Pendiente", fontSize = 10.sp,
-                    color = if (classEntry.paid) MaestroColors.Forest else MaestroColors.Terra,
-                    fontWeight = FontWeight.SemiBold)
-            }
+            StatusChip(paid = classEntry.paid)
         }
 
         // Toggle action
