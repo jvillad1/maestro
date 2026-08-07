@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -22,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.maestro.app.auth.TokenStorage
 import com.maestro.app.dev.USE_MOCK
 import com.maestro.app.navigation.Screen
 import com.maestro.app.theme.MaestroColors
@@ -67,7 +70,8 @@ private fun InitialsAvatar(name: String, size: Int = 36, bgColor: Color = Maestr
 fun MaestroSidebar(
     currentRoute: String,
     navController: NavHostController,
-    userName: String = ""
+    userName: String = "",
+    onLogout: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -144,8 +148,10 @@ fun MaestroSidebar(
                         Text(displayName, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso)
                         Text("Profesora · Piano", fontSize = 11.sp, color = MaestroColors.Muted)
                     }
-                    Icon(Icons.Default.ChevronRight, contentDescription = null,
-                        tint = MaestroColors.Muted, modifier = Modifier.size(16.dp))
+                    IconButton(onClick = onLogout, modifier = Modifier.size(32.dp)) {
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión",
+                            tint = MaestroColors.Muted, modifier = Modifier.size(18.dp))
+                    }
                 }
 
                 if (USE_MOCK) {
@@ -450,6 +456,12 @@ fun AppScaffold(
     dashboardHeader: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+    val tokenStorage = remember { TokenStorage() }
+    val onLogout: () -> Unit = {
+        tokenStorage.clearSession()
+        navController.navigate(Screen.Auth.route) { popUpTo(0) }
+    }
+
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val widthClass = if (maxWidth < 840.dp) WindowWidthClass.Compact else WindowWidthClass.Expanded
 
@@ -463,11 +475,11 @@ fun AppScaffold(
                         MaestroCompactHeader(pageTitle, breadcrumb, subtitle)
                     }
                     Box(modifier = Modifier.weight(1f)) { content() }
-                    MaestroBottomBar(currentRoute, navController)
+                    MaestroBottomBar(currentRoute, navController, onLogout)
                 }
             } else {
                 Row(modifier = Modifier.fillMaxSize()) {
-                    MaestroSidebar(currentRoute, navController, userName)
+                    MaestroSidebar(currentRoute, navController, userName, onLogout)
 
                     Column(
                         modifier = Modifier

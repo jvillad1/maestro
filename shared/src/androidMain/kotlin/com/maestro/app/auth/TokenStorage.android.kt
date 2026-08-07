@@ -43,4 +43,10 @@ actual class TokenStorage actual constructor() {
     actual fun saveUserId(id: Long) { runBlocking {
         context.dataStore.edit { it[USER_ID_KEY] = id.toString() }
     }}
+
+    actual fun clearSession() { runBlocking {
+        context.dataStore.edit {
+            it.remove(TOKEN_KEY); it.remove(NAME_KEY); it.remove(USER_ID_KEY)
+        }
+    }}
 }
