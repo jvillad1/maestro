@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,7 +29,8 @@ private val overflowTabs = navTabs.drop(4)
 @Composable
 fun MaestroBottomBar(
     currentRoute: String,
-    navController: NavHostController
+    navController: NavHostController,
+    onLogout: () -> Unit = {}
 ) {
     var showMore by remember { mutableStateOf(false) }
     val overflowSelected = overflowTabs.any { it.screen.route == currentRoute }
@@ -96,6 +98,25 @@ fun MaestroBottomBar(
                             Box(Modifier.size(6.dp).background(MaestroColors.Gold, CircleShape))
                         }
                     }
+                }
+
+                Spacer(Modifier.height(6.dp))
+                HorizontalDivider(color = MaestroColors.LightGold)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            showMore = false
+                            onLogout()
+                        }
+                        .padding(horizontal = 14.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión",
+                        modifier = Modifier.size(20.dp), tint = MaestroColors.Terra)
+                    Text("Cerrar sesión", fontSize = 15.sp, color = MaestroColors.Terra,
+                        fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(24.dp))
             }

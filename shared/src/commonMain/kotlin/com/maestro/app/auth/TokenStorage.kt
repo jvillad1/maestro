@@ -8,4 +8,5 @@ expect class TokenStorage() {
     fun saveUserName(name: String)
     fun getUserId(): Long?
     fun saveUserId(id: Long)
+    fun clearSession()
 }
