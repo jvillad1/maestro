@@ -33,6 +33,7 @@ import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.LocalWindowWidthClass
+import com.maestro.app.ui.components.ScreenHeader
 import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.EmptyState
 import com.maestro.app.ui.dashboard.getCurrentDate
@@ -82,28 +83,10 @@ fun EventsScreen(repository: MaestroRepository, navController: NavHostController
     val focusDescription = remember { FocusRequester() }
 
     AppScaffold(Screen.Events.route, navController, pageTitle = "Agenda", breadcrumb = "Agenda") {
+        val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-                // Header
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Agenda & Eventos",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaestroColors.Espresso,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Button(
-                        onClick = { vm.showAddDialog() },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text("+ Nuevo Evento", color = MaestroColors.White)
-                    }
-                }
+            Column(modifier = Modifier.fillMaxSize().padding(if (compact) 16.dp else 20.dp)) {
+                ScreenHeader("Agenda & Eventos", "+ Nuevo Evento") { vm.showAddDialog() }
 
                 Spacer(Modifier.height(16.dp))
 
