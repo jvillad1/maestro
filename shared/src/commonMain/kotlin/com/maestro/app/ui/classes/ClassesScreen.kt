@@ -40,6 +40,7 @@ import com.maestro.app.ui.components.EmptyState
 import com.maestro.app.ui.components.StatusChip
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Student
+import com.maestro.shared.util.isValidIsoDate
 
 private fun formatDate(date: String): String {
     val parts = date.split("-")
@@ -201,6 +202,10 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                                 value = dateInput, onValueChange = { dateInput = it },
                                 label = { Text("Fecha (YYYY-MM-DD)") },
                                 placeholder = { Text("2024-01-15") },
+                                isError = dateInput.isNotBlank() && !isValidIsoDate(dateInput),
+                                supportingText = if (dateInput.isNotBlank() && !isValidIsoDate(dateInput)) {
+                                    { Text("Fecha inválida — usa YYYY-MM-DD") }
+                                } else null,
                                 modifier = Modifier.fillMaxWidth()
                                     .focusRequester(focusDate)
                                     .onPreviewKeyEvent { e ->
@@ -234,7 +239,7 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                                             selectedStudentId = null; dateInput = ""; topicInput = ""; paidInput = false
                                         }
                                     },
-                                    enabled = selectedStudentId != null && dateInput.isNotBlank() && topicInput.isNotBlank(),
+                                    enabled = selectedStudentId != null && isValidIsoDate(dateInput) && topicInput.isNotBlank(),
                                     colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra)
                                 ) { Text("Guardar") }
                             }

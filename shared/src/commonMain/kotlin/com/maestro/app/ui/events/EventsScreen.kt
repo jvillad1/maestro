@@ -39,6 +39,7 @@ import com.maestro.app.ui.components.EmptyState
 import com.maestro.app.ui.dashboard.getCurrentDate
 import com.maestro.shared.model.Event
 import com.maestro.shared.model.EventType
+import com.maestro.shared.util.isValidIsoDate
 
 private fun eventTypeLabel(type: EventType): String = when (type) {
     EventType.RECITAL -> "Recital"
@@ -152,6 +153,10 @@ fun EventsScreen(repository: MaestroRepository, navController: NavHostController
                             OutlinedTextField(
                                 value = dateInput, onValueChange = { dateInput = it },
                                 label = { Text("Fecha (YYYY-MM-DD)") },
+                                isError = dateInput.isNotBlank() && !isValidIsoDate(dateInput),
+                                supportingText = if (dateInput.isNotBlank() && !isValidIsoDate(dateInput)) {
+                                    { Text("Fecha inválida — usa YYYY-MM-DD") }
+                                } else null,
                                 modifier = Modifier.fillMaxWidth()
                                     .focusRequester(focusDate)
                                     .onPreviewKeyEvent { e ->
@@ -220,7 +225,7 @@ fun EventsScreen(repository: MaestroRepository, navController: NavHostController
                                             selectedType = EventType.RECITAL
                                         }
                                     },
-                                    enabled = titleInput.isNotBlank() && dateInput.isNotBlank(),
+                                    enabled = titleInput.isNotBlank() && isValidIsoDate(dateInput),
                                     colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra)
                                 ) {
                                     Text("Guardar")

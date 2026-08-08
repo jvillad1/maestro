@@ -42,6 +42,9 @@ import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.EmptyState
 import com.maestro.shared.model.Level
 import com.maestro.shared.model.Student
+import com.maestro.shared.util.isValidAge
+import com.maestro.shared.util.isValidEmail
+import com.maestro.shared.util.isValidFee
 
 private fun parseHexColor(hex: String): Color {
     val clean = hex.trimStart('#')
@@ -252,7 +255,12 @@ fun StudentsScreen(repository: MaestroRepository, navController: NavHostControll
                             )
                             OutlinedTextField(
                                 value = ageInput, onValueChange = { ageInput = it },
-                                label = { Text("Edad") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Edad") },
+                                isError = ageInput.isNotBlank() && !isValidAge(ageInput),
+                                supportingText = if (ageInput.isNotBlank() && !isValidAge(ageInput)) {
+                                    { Text("Número entre 1 y 120") }
+                                } else null,
+                                modifier = Modifier.fillMaxWidth()
                                     .focusRequester(focusAge)
                                     .onPreviewKeyEvent { e ->
                                         if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) { focusPhone.requestFocus(); true } else false
@@ -268,7 +276,12 @@ fun StudentsScreen(repository: MaestroRepository, navController: NavHostControll
                             )
                             OutlinedTextField(
                                 value = emailInput, onValueChange = { emailInput = it },
-                                label = { Text("Email") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Email") },
+                                isError = emailInput.isNotBlank() && !isValidEmail(emailInput),
+                                supportingText = if (emailInput.isNotBlank() && !isValidEmail(emailInput)) {
+                                    { Text("Email inválido") }
+                                } else null,
+                                modifier = Modifier.fillMaxWidth()
                                     .focusRequester(focusEmail)
                                     .onPreviewKeyEvent { e ->
                                         if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) { focusFee.requestFocus(); true } else false
@@ -276,7 +289,12 @@ fun StudentsScreen(repository: MaestroRepository, navController: NavHostControll
                             )
                             OutlinedTextField(
                                 value = feeInput, onValueChange = { feeInput = it },
-                                label = { Text("Cuota mensual (COP)") }, modifier = Modifier.fillMaxWidth()
+                                label = { Text("Cuota mensual (COP)") },
+                                isError = feeInput.isNotBlank() && !isValidFee(feeInput),
+                                supportingText = if (feeInput.isNotBlank() && !isValidFee(feeInput)) {
+                                    { Text("Solo números, mayor a 0 (ej: 150000)") }
+                                } else null,
+                                modifier = Modifier.fillMaxWidth()
                                     .focusRequester(focusFee)
                                     .onPreviewKeyEvent { e ->
                                         if (e.key == Key.Tab && e.type == KeyEventType.KeyDown) { focusNotes.requestFocus(); true } else false
@@ -335,6 +353,8 @@ fun StudentsScreen(repository: MaestroRepository, navController: NavHostControll
                                         emailInput = ""; feeInput = ""; notesInput = ""
                                         selectedLevel = Level.INICIAL; colorIndex = 0
                                     },
+                                    enabled = nameInput.isNotBlank() && isValidAge(ageInput) && isValidFee(feeInput) &&
+                                        (emailInput.isBlank() || isValidEmail(emailInput)),
                                     colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra)
                                 ) { Text("Guardar") }
                             }
