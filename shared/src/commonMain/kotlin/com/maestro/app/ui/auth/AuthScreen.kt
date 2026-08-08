@@ -21,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.maestro.app.auth.TokenStorage
 import com.maestro.app.network.ApiClient
 import com.maestro.app.theme.MaestroColors
+import com.maestro.shared.util.isValidEmail
 
 @Composable
 fun AuthScreen(apiClient: ApiClient, tokenStorage: TokenStorage, onSuccess: () -> Unit) {
@@ -71,6 +72,10 @@ fun AuthScreen(apiClient: ApiClient, tokenStorage: TokenStorage, onSuccess: () -
                     OutlinedTextField(
                         value = email, onValueChange = { email = it },
                         label = { Text("Email") },
+                        isError = email.isNotBlank() && !isValidEmail(email),
+                        supportingText = if (email.isNotBlank() && !isValidEmail(email)) {
+                            { Text("Email inválido") }
+                        } else null,
                         modifier = Modifier.fillMaxWidth()
                             .focusRequester(registerFocusEmail)
                             .onPreviewKeyEvent { e ->
@@ -82,6 +87,10 @@ fun AuthScreen(apiClient: ApiClient, tokenStorage: TokenStorage, onSuccess: () -
                     OutlinedTextField(
                         value = password, onValueChange = { password = it },
                         label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation(),
+                        isError = password.isNotBlank() && password.length < 6,
+                        supportingText = if (password.isNotBlank() && password.length < 6) {
+                            { Text("Mínimo 6 caracteres") }
+                        } else null,
                         modifier = Modifier.fillMaxWidth()
                             .focusRequester(registerFocusPassword)
                             .onPreviewKeyEvent { e ->
@@ -122,7 +131,8 @@ fun AuthScreen(apiClient: ApiClient, tokenStorage: TokenStorage, onSuccess: () -
                         if (state.isRegistering) vm.register(email, password, name, onSuccess)
                         else vm.login(email, password, onSuccess)
                     },
-                    enabled = !state.isLoading,
+                    enabled = !state.isLoading && email.isNotBlank() && password.isNotBlank() &&
+                        (!state.isRegistering || (name.isNotBlank() && isValidEmail(email) && password.length >= 6)),
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra)
                 ) {
