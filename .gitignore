@@ -7,6 +7,10 @@ build/
 .idea/
 *.iml
 local.properties
+# Firma de release: el keystore vive fuera del repo, las credenciales acá
+keystore.properties
+*.jks
+*.keystore
 .DS_Store
 .superpowers/
 *.env
