@@ -24,6 +24,7 @@ import kotlinx.serialization.Serializable
     val date: String,
     val topic: String,
     val paid: Boolean,
+    val attendance: Attendance = Attendance.PENDIENTE,
     val id: String? = null
 )
 

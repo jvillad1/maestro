@@ -5,6 +5,7 @@ CREATE TABLE class_entry (
     date          TEXT    NOT NULL,
     topic         TEXT    NOT NULL,
     paid          INTEGER NOT NULL DEFAULT 0,
+    attendance    TEXT    NOT NULL DEFAULT 'PENDIENTE',
     syncedAt      INTEGER,
     pendingDelete INTEGER NOT NULL DEFAULT 0
 );
@@ -28,8 +29,8 @@ selectPendingDelete:
 SELECT * FROM class_entry WHERE userId = :userId AND pendingDelete = 1;
 
 upsert:
-INSERT OR REPLACE INTO class_entry(id, userId, studentId, date, topic, paid, syncedAt, pendingDelete)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO class_entry(id, userId, studentId, date, topic, paid, attendance, syncedAt, pendingDelete)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 markSynced:
 UPDATE class_entry SET syncedAt = :syncedAt WHERE id = :id;

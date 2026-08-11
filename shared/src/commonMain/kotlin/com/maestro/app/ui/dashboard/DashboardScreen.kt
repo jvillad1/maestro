@@ -101,7 +101,12 @@ fun DashboardScreen(
                 KpiCard("POR COBRAR", dashFormatCOP(state.pendingIncome),
                     "${state.students.count { s -> state.recentClasses.any { it.studentId == s.id && !it.paid } }} pagos pendientes",
                     MaestroColors.Gold, Modifier.weight(1f))
-                KpiCard("PROMEDIO ASISTENCIA", "94%", "Últimos 30 días", MaestroColors.Terra, Modifier.weight(1f))
+                KpiCard(
+                    "PROMEDIO ASISTENCIA",
+                    state.attendanceRate?.let { "$it%" } ?: "—",
+                    if (state.attendanceRate != null) "Este mes" else "Marca asistencia en Clases",
+                    MaestroColors.Terra, Modifier.weight(1f)
+                )
             }
 
             // Body — two columns on desktop, stacked on phones

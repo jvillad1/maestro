@@ -5,6 +5,7 @@ import com.maestro.shared.dto.ClassEntryRequest
 import com.maestro.shared.dto.EventRequest
 import com.maestro.shared.dto.StudentRequest
 import com.maestro.shared.dto.TaskRequest
+import com.maestro.shared.model.Attendance
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Event
 import com.maestro.shared.model.EventType
@@ -88,7 +89,7 @@ class LocalRepository(
                     if (local == null || local.syncedAt != null) {
                         db.classEntryQueries.upsert(
                             c.id, userId(), c.studentId, c.date, c.topic,
-                            if (c.paid) 1 else 0, now, 0
+                            if (c.paid) 1 else 0, c.attendance.name, now, 0
                         )
                     }
                 }
@@ -110,14 +111,14 @@ class LocalRepository(
     override suspend fun createClass(req: ClassEntryRequest): ClassEntry {
         val id = req.id ?: newId()
         db.classEntryQueries.upsert(
-            id, userId(), req.studentId, req.date, req.topic, if (req.paid) 1 else 0, null, 0
+            id, userId(), req.studentId, req.date, req.topic, if (req.paid) 1 else 0, req.attendance.name, null, 0
         )
         return db.classEntryQueries.selectById(id).executeAsOne().toClassEntry()
     }
 
     override suspend fun updateClass(id: String, req: ClassEntryRequest): ClassEntry {
         db.classEntryQueries.upsert(
-            id, userId(), req.studentId, req.date, req.topic, if (req.paid) 1 else 0, null, 0
+            id, userId(), req.studentId, req.date, req.topic, if (req.paid) 1 else 0, req.attendance.name, null, 0
         )
         return db.classEntryQueries.selectById(id).executeAsOne().toClassEntry()
     }
@@ -212,7 +213,8 @@ internal fun com.maestro.shared.db.Student.toStudent() = Student(
 )
 
 internal fun com.maestro.shared.db.Class_entry.toClassEntry() = ClassEntry(
-    id = id, studentId = studentId, date = date, topic = topic, paid = paid == 1L
+    id = id, studentId = studentId, date = date, topic = topic, paid = paid == 1L,
+    attendance = Attendance.valueOf(attendance)
 )
 
 internal fun com.maestro.shared.db.Task.toTask() = Task(

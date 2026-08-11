@@ -5,6 +5,7 @@ import com.maestro.shared.dto.ClassEntryRequest
 import com.maestro.shared.dto.EventRequest
 import com.maestro.shared.dto.StudentRequest
 import com.maestro.shared.dto.TaskRequest
+import com.maestro.shared.model.Attendance
 import com.maestro.shared.model.EventType
 import com.maestro.shared.model.Level
 import com.maestro.shared.model.Priority
@@ -70,7 +71,7 @@ class SyncEngine(
                 remote.createClass(
                     ClassEntryRequest(
                         studentId = row.studentId, date = row.date, topic = row.topic,
-                        paid = row.paid == 1L, id = row.id
+                        paid = row.paid == 1L, attendance = Attendance.valueOf(row.attendance), id = row.id
                     )
                 )
                 db.classEntryQueries.markSynced(epochMillis(), row.id)
