@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Corcheas dobles doradas, centradas en la zona segura (66dp) del ícono adaptativo -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#D4A73C"
+        android:pathData="M31,68 a7,5 0 1,0 14,0 a7,5 0 1,0 -14,0 M53,63 a7,5 0 1,0 14,0 a7,5 0 1,0 -14,0 M42.5,36 L45.5,36 L45.5,68 L42.5,68 Z M64.5,31 L67.5,31 L67.5,63 L64.5,63 Z M42.5,33 L67.5,28 L67.5,36 L42.5,41 Z"/>
+</vector>
