@@ -2,6 +2,7 @@ package com.maestro.server.routes
 
 import com.maestro.server.plugins.*
 import com.maestro.shared.dto.ClassEntryRequest
+import com.maestro.shared.model.Attendance
 import com.maestro.shared.model.ClassEntry
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -19,7 +20,8 @@ private fun ResultRow.toClassEntry() = ClassEntry(
     studentId = this[ClassEntries.studentId],
     date = this[ClassEntries.date],
     topic = this[ClassEntries.topic],
-    paid = this[ClassEntries.paid]
+    paid = this[ClassEntries.paid],
+    attendance = Attendance.valueOf(this[ClassEntries.attendance])
 )
 
 fun Route.classRoutes() {
@@ -51,11 +53,13 @@ fun Route.classRoutes() {
                     ClassEntries.update({ ClassEntries.id eq cid }) {
                         it[studentId] = req.studentId; it[date] = req.date
                         it[topic] = req.topic; it[paid] = req.paid
+                        it[attendance] = req.attendance.name
                     }
                 } else {
                     ClassEntries.insert {
                         it[id] = cid; it[studentId] = req.studentId; it[date] = req.date
                         it[topic] = req.topic; it[paid] = req.paid
+                        it[attendance] = req.attendance.name
                     }
                 }
                 ClassEntries.selectAll().where { ClassEntries.id eq cid }.single().toClassEntry()
@@ -73,6 +77,7 @@ fun Route.classRoutes() {
                 if (!owned) return@transaction null
                 ClassEntries.update({ ClassEntries.id eq cid }) {
                     it[topic] = req.topic; it[paid] = req.paid; it[date] = req.date
+                    it[attendance] = req.attendance.name
                 }
                 ClassEntries.selectAll().where { ClassEntries.id eq cid }.single().toClassEntry()
             }

@@ -8,6 +8,7 @@ import com.maestro.app.dev.mockEvents
 import com.maestro.app.dev.mockStudents
 import com.maestro.app.dev.mockTasks
 import com.maestro.shared.repository.MaestroRepository
+import com.maestro.shared.model.Attendance
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Event
 import com.maestro.shared.model.Student
@@ -23,6 +24,8 @@ data class DashboardState(
     val pendingTasks: List<Task> = emptyList(),
     val totalIncome: Long = 0L,
     val pendingIncome: Long = 0L,
+    /** % de asistencia del mes (asistió / marcadas); null si aún no hay clases marcadas. */
+    val attendanceRate: Int? = null,
     val isLoading: Boolean = true,
     val currentPhraseIndex: Int = 0
 )
@@ -65,6 +68,9 @@ class DashboardViewModel(private val repository: MaestroRepository) : ViewModel(
                 val pendingIncome = students.sumOf { s ->
                     if (classes.any { it.studentId == s.id && !it.paid }) s.monthlyFee else 0L
                 }
+                val marked = classes.count { it.attendance != Attendance.PENDIENTE }
+                val attendanceRate = if (marked == 0) null
+                else classes.count { it.attendance == Attendance.ASISTIO } * 100 / marked
 
                 _state.value = DashboardState(
                     students = students,
@@ -73,6 +79,7 @@ class DashboardViewModel(private val repository: MaestroRepository) : ViewModel(
                     pendingTasks = tasks.filter { !it.done }.take(3),
                     totalIncome = totalIncome,
                     pendingIncome = pendingIncome,
+                    attendanceRate = attendanceRate,
                     isLoading = false
                 )
             } catch (e: Exception) {

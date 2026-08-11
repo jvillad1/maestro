@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable enum class Level { INICIAL, ELEMENTAL, INTERMEDIO, AVANZADO }
 @Serializable enum class Priority { ALTA, MEDIA, BAJA }
 @Serializable enum class EventType { RECITAL, MASTERCLASS, EVALUACION, OTRO }
+@Serializable enum class Attendance { PENDIENTE, ASISTIO, FALTO }
 
 @Serializable
 data class User(
@@ -35,7 +36,8 @@ data class ClassEntry(
     val studentId: String,
     val date: String,
     val topic: String,
-    val paid: Boolean
+    val paid: Boolean,
+    val attendance: Attendance = Attendance.PENDIENTE
 )
 
 @Serializable

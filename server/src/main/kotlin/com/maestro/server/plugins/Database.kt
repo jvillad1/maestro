@@ -36,6 +36,7 @@ object ClassEntries : Table("class_entries") {
     val date = varchar("date", 10)
     val topic = varchar("topic", 500)
     val paid = bool("paid").default(false)
+    val attendance = varchar("attendance", 10).default("PENDIENTE")
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -107,5 +108,7 @@ fun Application.configureDatabase() {
 
     transaction {
         SchemaUtils.create(Users, Students, ClassEntries, Tasks, Events)
+        // SchemaUtils.create no agrega columnas a tablas existentes (2026-08: asistencia)
+        exec("ALTER TABLE class_entries ADD COLUMN IF NOT EXISTS attendance VARCHAR(10) DEFAULT 'PENDIENTE' NOT NULL")
     }
 }

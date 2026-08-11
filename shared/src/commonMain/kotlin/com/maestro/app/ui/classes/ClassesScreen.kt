@@ -36,6 +36,7 @@ import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.LocalWindowWidthClass
 import com.maestro.app.ui.components.WindowWidthClass
+import com.maestro.app.ui.components.AttendanceChip
 import com.maestro.app.ui.components.EmptyState
 import com.maestro.app.ui.components.StatusChip
 import com.maestro.shared.model.ClassEntry
@@ -157,7 +158,8 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                                         classEntry = cls,
                                         students = state.students,
                                         compact = compact,
-                                        onTogglePaid = { vm.togglePaid(cls) }
+                                        onTogglePaid = { vm.togglePaid(cls) },
+                                        onCycleAttendance = { vm.cycleAttendance(cls) }
                                     )
                                     HorizontalDivider(color = MaestroColors.LightGold.copy(alpha = 0.6f))
                                 }
@@ -252,15 +254,21 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
 }
 
 @Composable
-private fun ClassTableRow(classEntry: ClassEntry, students: List<Student>, compact: Boolean, onTogglePaid: () -> Unit) {
+private fun ClassTableRow(
+    classEntry: ClassEntry,
+    students: List<Student>,
+    compact: Boolean,
+    onTogglePaid: () -> Unit,
+    onCycleAttendance: () -> Unit
+) {
     val color = studentColor(students, classEntry.studentId)
 
     if (compact) {
-        // Phone: two-line row, the status chip itself toggles paid
+        // Phone: two-line row; the chips themselves are the toggle buttons
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 modifier = Modifier.size(34.dp).clip(CircleShape).background(color.copy(alpha = 0.18f)),
@@ -274,6 +282,7 @@ private fun ClassTableRow(classEntry: ClassEntry, students: List<Student>, compa
                 Text("${formatDate(classEntry.date)} · ${classEntry.topic}",
                     fontSize = 11.sp, color = MaestroColors.Muted, maxLines = 1)
             }
+            AttendanceChip(attendance = classEntry.attendance, onClick = onCycleAttendance)
             StatusChip(paid = classEntry.paid, onClick = onTogglePaid)
         }
         return
@@ -309,6 +318,7 @@ private fun ClassTableRow(classEntry: ClassEntry, students: List<Student>, compa
 
         // Status + action column
         Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            AttendanceChip(attendance = classEntry.attendance, onClick = onCycleAttendance)
             StatusChip(paid = classEntry.paid)
         }
 

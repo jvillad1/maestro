@@ -8,6 +8,7 @@ import com.maestro.app.dev.mockStudents
 import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.ui.dashboard.getCurrentMonth
 import com.maestro.shared.dto.ClassEntryRequest
+import com.maestro.shared.model.Attendance
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Student
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,15 +75,29 @@ class ClassesViewModel(private val repository: MaestroRepository) : ViewModel() 
     }
 
     fun togglePaid(classEntry: ClassEntry) {
+        update(classEntry.copy(paid = !classEntry.paid))
+    }
+
+    fun cycleAttendance(classEntry: ClassEntry) {
+        val next = when (classEntry.attendance) {
+            Attendance.PENDIENTE -> Attendance.ASISTIO
+            Attendance.ASISTIO -> Attendance.FALTO
+            Attendance.FALTO -> Attendance.PENDIENTE
+        }
+        update(classEntry.copy(attendance = next))
+    }
+
+    private fun update(entry: ClassEntry) {
         viewModelScope.launch {
             try {
                 val updated = repository.updateClass(
-                    classEntry.id,
+                    entry.id,
                     ClassEntryRequest(
-                        studentId = classEntry.studentId,
-                        date = classEntry.date,
-                        topic = classEntry.topic,
-                        paid = !classEntry.paid
+                        studentId = entry.studentId,
+                        date = entry.date,
+                        topic = entry.topic,
+                        paid = entry.paid,
+                        attendance = entry.attendance
                     )
                 )
                 _state.value = _state.value.copy(
