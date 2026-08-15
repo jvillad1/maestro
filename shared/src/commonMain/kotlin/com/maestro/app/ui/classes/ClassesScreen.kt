@@ -76,6 +76,7 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
     var dateInput by remember { mutableStateOf("") }
     var topicInput by remember { mutableStateOf("") }
     var paidInput by remember { mutableStateOf(false) }
+    var notesInput by remember { mutableStateOf("") }
 
     val focusDate = remember { FocusRequester() }
     val focusTopic = remember { FocusRequester() }
@@ -159,7 +160,8 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                                         students = state.students,
                                         compact = compact,
                                         onTogglePaid = { vm.togglePaid(cls) },
-                                        onCycleAttendance = { vm.cycleAttendance(cls) }
+                                        onCycleAttendance = { vm.cycleAttendance(cls) },
+                                        onOpenNotes = { vm.showNotesDialog(cls) }
                                     )
                                     HorizontalDivider(color = MaestroColors.LightGold.copy(alpha = 0.6f))
                                 }
@@ -224,6 +226,14 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                                     }
                             )
 
+                            OutlinedTextField(
+                                value = notesInput, onValueChange = { notesInput = it },
+                                label = { Text("Notas de la clase (opcional)") },
+                                placeholder = { Text("Qué se vio, cómo respondió, tarea…") },
+                                minLines = 3,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Checkbox(checked = paidInput, onCheckedChange = { paidInput = it })
                                 Text("Clase pagada", style = MaterialTheme.typography.bodyMedium, color = MaestroColors.Espresso)
@@ -232,16 +242,59 @@ fun ClassesScreen(repository: MaestroRepository, navController: NavHostControlle
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
                                 OutlinedButton(onClick = {
                                     vm.hideAddDialog()
-                                    selectedStudentId = null; dateInput = ""; topicInput = ""; paidInput = false
+                                    selectedStudentId = null; dateInput = ""; topicInput = ""; paidInput = false; notesInput = ""
                                 }) { Text("Cancelar") }
                                 Button(
                                     onClick = {
                                         selectedStudentId?.let { sid ->
-                                            vm.createClass(sid, dateInput, topicInput, paidInput)
-                                            selectedStudentId = null; dateInput = ""; topicInput = ""; paidInput = false
+                                            vm.createClass(sid, dateInput, topicInput, paidInput, notesInput)
+                                            selectedStudentId = null; dateInput = ""; topicInput = ""; paidInput = false; notesInput = ""
                                         }
                                     },
                                     enabled = selectedStudentId != null && isValidIsoDate(dateInput) && topicInput.isNotBlank(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra)
+                                ) { Text("Guardar") }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Class log dialog — write what happened in this class
+            state.editingNotesFor?.let { editing ->
+                var draft by remember(editing.id) { mutableStateOf(editing.notes) }
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)).imePadding(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Card(
+                        modifier = Modifier.widthIn(max = 480.dp).padding(16.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaestroColors.White)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp).verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text("Notas de la clase", style = MaterialTheme.typography.titleMedium,
+                                color = MaestroColors.Espresso, fontWeight = FontWeight.Bold)
+                            Text(
+                                "${studentName(state.students, editing.studentId)} · ${formatDate(editing.date)}\n${editing.topic}",
+                                style = MaterialTheme.typography.bodySmall, color = MaestroColors.Muted
+                            )
+
+                            OutlinedTextField(
+                                value = draft, onValueChange = { draft = it },
+                                label = { Text("Bitácora") },
+                                placeholder = { Text("Qué se vio, cómo respondió, tarea para la próxima…") },
+                                minLines = 5,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
+                                OutlinedButton(onClick = { vm.hideNotesDialog() }) { Text("Cancelar") }
+                                Button(
+                                    onClick = { vm.saveNotes(editing, draft) },
                                     colors = ButtonDefaults.buttonColors(containerColor = MaestroColors.Terra)
                                 ) { Text("Guardar") }
                             }
@@ -259,12 +312,14 @@ private fun ClassTableRow(
     students: List<Student>,
     compact: Boolean,
     onTogglePaid: () -> Unit,
-    onCycleAttendance: () -> Unit
+    onCycleAttendance: () -> Unit,
+    onOpenNotes: () -> Unit
 ) {
     val color = studentColor(students, classEntry.studentId)
+    val hasNotes = classEntry.notes.isNotBlank()
 
     if (compact) {
-        // Phone: two-line row; the chips themselves are the toggle buttons
+        // Phone: two-line row; chips toggle state, the text block opens the log
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -276,11 +331,18 @@ private fun ClassTableRow(
             ) {
                 Text(studentInitial(students, classEntry.studentId), color = color, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(studentName(students, classEntry.studentId),
-                    fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso, maxLines = 1)
-                Text("${formatDate(classEntry.date)} · ${classEntry.topic}",
-                    fontSize = 11.sp, color = MaestroColors.Muted, maxLines = 1)
+            Column(modifier = Modifier.weight(1f).clickable { onOpenNotes() }) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text(studentName(students, classEntry.studentId),
+                        fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso, maxLines = 1)
+                    if (hasNotes) Text("✎", fontSize = 11.sp, color = MaestroColors.Gold)
+                }
+                Text(
+                    if (hasNotes) classEntry.notes else "${formatDate(classEntry.date)} · ${classEntry.topic}",
+                    fontSize = 11.sp,
+                    color = if (hasNotes) MaestroColors.Espresso.copy(alpha = 0.75f) else MaestroColors.Muted,
+                    maxLines = 1
+                )
             }
             AttendanceChip(attendance = classEntry.attendance, onClick = onCycleAttendance)
             StatusChip(paid = classEntry.paid, onClick = onTogglePaid)
@@ -308,6 +370,8 @@ private fun ClassTableRow(
                 Text(studentName(students, classEntry.studentId),
                     fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = MaestroColors.Espresso)
                 Text(classEntry.topic, fontSize = 11.sp, color = MaestroColors.Muted)
+                if (hasNotes) Text(classEntry.notes, fontSize = 11.sp,
+                    color = MaestroColors.Espresso.copy(alpha = 0.7f), maxLines = 2)
             }
         }
 
@@ -322,10 +386,13 @@ private fun ClassTableRow(
             StatusChip(paid = classEntry.paid)
         }
 
-        // Toggle action
+        // Toggle actions
         TextButton(onClick = onTogglePaid, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)) {
             Text(if (classEntry.paid) "Desmarcar" else "Marcar pagado",
                 fontSize = 11.sp, color = MaestroColors.Terra)
+        }
+        TextButton(onClick = onOpenNotes, contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)) {
+            Text(if (hasNotes) "Ver notas" else "+ Notas", fontSize = 11.sp, color = MaestroColors.Gold)
         }
     }
 }

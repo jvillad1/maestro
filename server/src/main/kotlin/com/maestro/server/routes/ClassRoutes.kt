@@ -21,7 +21,8 @@ private fun ResultRow.toClassEntry() = ClassEntry(
     date = this[ClassEntries.date],
     topic = this[ClassEntries.topic],
     paid = this[ClassEntries.paid],
-    attendance = Attendance.valueOf(this[ClassEntries.attendance])
+    attendance = Attendance.valueOf(this[ClassEntries.attendance]),
+    notes = this[ClassEntries.notes]
 )
 
 fun Route.classRoutes() {
@@ -53,13 +54,13 @@ fun Route.classRoutes() {
                     ClassEntries.update({ ClassEntries.id eq cid }) {
                         it[studentId] = req.studentId; it[date] = req.date
                         it[topic] = req.topic; it[paid] = req.paid
-                        it[attendance] = req.attendance.name
+                        it[attendance] = req.attendance.name; it[notes] = req.notes
                     }
                 } else {
                     ClassEntries.insert {
                         it[id] = cid; it[studentId] = req.studentId; it[date] = req.date
                         it[topic] = req.topic; it[paid] = req.paid
-                        it[attendance] = req.attendance.name
+                        it[attendance] = req.attendance.name; it[notes] = req.notes
                     }
                 }
                 ClassEntries.selectAll().where { ClassEntries.id eq cid }.single().toClassEntry()
@@ -77,7 +78,7 @@ fun Route.classRoutes() {
                 if (!owned) return@transaction null
                 ClassEntries.update({ ClassEntries.id eq cid }) {
                     it[topic] = req.topic; it[paid] = req.paid; it[date] = req.date
-                    it[attendance] = req.attendance.name
+                    it[attendance] = req.attendance.name; it[notes] = req.notes
                 }
                 ClassEntries.selectAll().where { ClassEntries.id eq cid }.single().toClassEntry()
             }

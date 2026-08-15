@@ -71,7 +71,8 @@ class SyncEngine(
                 remote.createClass(
                     ClassEntryRequest(
                         studentId = row.studentId, date = row.date, topic = row.topic,
-                        paid = row.paid == 1L, attendance = Attendance.valueOf(row.attendance), id = row.id
+                        paid = row.paid == 1L, attendance = Attendance.valueOf(row.attendance),
+                        notes = row.notes, id = row.id
                     )
                 )
                 db.classEntryQueries.markSynced(epochMillis(), row.id)

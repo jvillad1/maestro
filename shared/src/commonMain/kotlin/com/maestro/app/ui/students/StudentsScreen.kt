@@ -36,6 +36,7 @@ import com.maestro.app.navigation.Screen
 import com.maestro.shared.repository.MaestroRepository
 import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
+import com.maestro.app.ui.components.AttendanceChip
 import com.maestro.app.ui.components.LocalWindowWidthClass
 import com.maestro.app.ui.components.StatusChip
 import com.maestro.app.ui.components.WindowWidthClass
@@ -529,16 +530,26 @@ fun StudentDetailScreen(studentId: String, repository: MaestroRepository, navCon
                         Text("Sin clases registradas", style = MaterialTheme.typography.bodySmall, color = MaestroColors.Muted)
                     } else {
                         state.classes.forEach { cls ->
-                            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically) {
-                                Box(modifier = Modifier.background(MaestroColors.LightGold, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
-                                    Text(cls.date, fontSize = 10.sp, color = MaestroColors.Espresso)
+                            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Box(modifier = Modifier.background(MaestroColors.LightGold, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
+                                        Text(cls.date, fontSize = 10.sp, color = MaestroColors.Espresso)
+                                    }
+                                    Text(cls.topic, style = MaterialTheme.typography.bodySmall, color = MaestroColors.Espresso,
+                                        maxLines = 1, modifier = Modifier.weight(1f))
+                                    AttendanceChip(attendance = cls.attendance)
+                                    // The chip is the toggle — same phone pattern as the Classes screen
+                                    StatusChip(paid = cls.paid, onClick = { vm.togglePaid(cls) })
                                 }
-                                Text(cls.topic, style = MaterialTheme.typography.bodySmall, color = MaestroColors.Espresso,
-                                    maxLines = 1, modifier = Modifier.weight(1f))
-                                // The chip is the toggle — same phone pattern as the Classes screen
-                                StatusChip(paid = cls.paid, onClick = { vm.togglePaid(cls) })
+                                // Class log: the trajectory of the student, session by session
+                                if (cls.notes.isNotBlank()) {
+                                    Text(cls.notes, style = MaterialTheme.typography.bodySmall,
+                                        color = MaestroColors.Muted,
+                                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 2.dp))
+                                }
                             }
                             HorizontalDivider(color = MaestroColors.LightGold.copy(alpha = 0.5f))
                         }

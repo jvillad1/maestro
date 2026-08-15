@@ -21,6 +21,8 @@ data class ClassesState(
     val currentMonth: String = "",
     val isLoading: Boolean = true,
     val showAddDialog: Boolean = false,
+    /** Clase cuya bitácora se está editando; null = diálogo cerrado. */
+    val editingNotesFor: ClassEntry? = null,
     val error: String? = null
 )
 
@@ -59,10 +61,18 @@ class ClassesViewModel(private val repository: MaestroRepository) : ViewModel() 
     fun showAddDialog() { _state.value = _state.value.copy(showAddDialog = true) }
     fun hideAddDialog() { _state.value = _state.value.copy(showAddDialog = false) }
 
-    fun createClass(studentId: String, date: String, topic: String, paid: Boolean) {
+    fun showNotesDialog(classEntry: ClassEntry) { _state.value = _state.value.copy(editingNotesFor = classEntry) }
+    fun hideNotesDialog() { _state.value = _state.value.copy(editingNotesFor = null) }
+
+    fun saveNotes(classEntry: ClassEntry, notes: String) {
+        _state.value = _state.value.copy(editingNotesFor = null)
+        update(classEntry.copy(notes = notes.trim()))
+    }
+
+    fun createClass(studentId: String, date: String, topic: String, paid: Boolean, notes: String = "") {
         viewModelScope.launch {
             try {
-                val req = ClassEntryRequest(studentId, date, topic, paid)
+                val req = ClassEntryRequest(studentId, date, topic, paid, notes = notes.trim())
                 val created = repository.createClass(req)
                 _state.value = _state.value.copy(
                     classes = (_state.value.classes + created).sortedByDescending { it.date },
@@ -97,7 +107,8 @@ class ClassesViewModel(private val repository: MaestroRepository) : ViewModel() 
                         date = entry.date,
                         topic = entry.topic,
                         paid = entry.paid,
-                        attendance = entry.attendance
+                        attendance = entry.attendance,
+                        notes = entry.notes
                     )
                 )
                 _state.value = _state.value.copy(
