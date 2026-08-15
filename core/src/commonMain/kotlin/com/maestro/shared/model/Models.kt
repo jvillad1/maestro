@@ -37,7 +37,9 @@ data class ClassEntry(
     val date: String,
     val topic: String,
     val paid: Boolean,
-    val attendance: Attendance = Attendance.PENDIENTE
+    val attendance: Attendance = Attendance.PENDIENTE,
+    /** Bitácora de la clase: qué se vio, cómo respondió, qué queda de tarea. */
+    val notes: String = ""
 )
 
 @Serializable

@@ -96,15 +96,22 @@ class StudentDetailViewModel(private val repository: MaestroRepository) : ViewMo
     }
 
     fun togglePaid(classEntry: ClassEntry) {
+        // copy() para no perder los campos que esta pantalla no edita (asistencia, notas)
+        update(classEntry.copy(paid = !classEntry.paid))
+    }
+
+    private fun update(entry: ClassEntry) {
         viewModelScope.launch {
             try {
                 val updated = repository.updateClass(
-                    classEntry.id,
+                    entry.id,
                     com.maestro.shared.dto.ClassEntryRequest(
-                        studentId = classEntry.studentId,
-                        date = classEntry.date,
-                        topic = classEntry.topic,
-                        paid = !classEntry.paid
+                        studentId = entry.studentId,
+                        date = entry.date,
+                        topic = entry.topic,
+                        paid = entry.paid,
+                        attendance = entry.attendance,
+                        notes = entry.notes
                     )
                 )
                 _state.value = _state.value.copy(
