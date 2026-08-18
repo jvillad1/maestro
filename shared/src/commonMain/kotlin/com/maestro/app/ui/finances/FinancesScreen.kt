@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,10 +26,23 @@ import com.maestro.app.theme.MaestroColors
 import com.maestro.app.ui.components.AppScaffold
 import com.maestro.app.ui.components.LocalWindowWidthClass
 import com.maestro.app.ui.components.WindowWidthClass
-import com.maestro.shared.model.Student
+import com.maestro.app.ui.dashboard.getCurrentMonth
 
 private fun formatCOP(amount: Long): String =
     "$${amount.toString().reversed().chunked(3).joinToString(".").reversed()}"
+
+private val MONTH_NAMES = listOf(
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+)
+
+/** "2026-08" → "Agosto 2026" */
+private fun monthLabel(month: String): String {
+    val parts = month.split("-")
+    if (parts.size != 2) return month
+    val name = parts[1].toIntOrNull()?.minus(1)?.let { MONTH_NAMES.getOrNull(it) } ?: return month
+    return "$name ${parts[0]}"
+}
 
 private fun parseHexColor(hex: String): Color {
     val clean = hex.trimStart('#')
@@ -38,28 +53,71 @@ private fun parseHexColor(hex: String): Color {
     return Color(r / 255f, g / 255f, b / 255f)
 }
 
+/** Resumen en texto plano, listo para pegar en WhatsApp o un correo. */
+private fun reportText(state: FinancesState): String = buildString {
+    appendLine("MAESTRO · Reporte de ${monthLabel(state.selectedMonth)}")
+    appendLine()
+    appendLine("Esperado:  ${formatCOP(state.expectedTotal)}")
+    appendLine("Cobrado:   ${formatCOP(state.collected)}")
+    appendLine("Pendiente: ${formatCOP(state.pending)}")
+    appendLine()
+    appendLine("Por estudiante:")
+    state.rows.forEach { r ->
+        val estado = when (r.status) {
+            FinanceStatus.PAID -> "pagado"
+            FinanceStatus.PENDING -> "pendiente"
+            FinanceStatus.NO_CLASSES -> "sin clases"
+        }
+        append("· ${r.student.name}: ${r.classCount} clases")
+        if (r.attended > 0 || r.missed > 0) append(" (${r.attended} asistió, ${r.missed} faltó)")
+        appendLine(" — ${formatCOP(r.student.monthlyFee)} $estado")
+    }
+}
+
 @Composable
 fun FinancesScreen(repository: MaestroRepository, navController: NavHostController) {
     val vm = viewModel { FinancesViewModel(repository) }
     val state by vm.state.collectAsStateWithLifecycle()
+    val clipboard = LocalClipboardManager.current
+    var copied by remember { mutableStateOf(false) }
 
     AppScaffold(Screen.Finances.route, navController, pageTitle = "Finanzas", breadcrumb = "Gestión") {
         val compact = LocalWindowWidthClass.current == WindowWidthClass.Compact
         Column(modifier = Modifier.fillMaxSize().padding(if (compact) 16.dp else 20.dp)) {
-            // Header
             Text(
-                "Control Financiero",
+                "Reporte Mensual",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaestroColors.Espresso,
                 fontWeight = FontWeight.Bold
             )
-            Text(
-                state.currentMonth,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaestroColors.Muted
-            )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(10.dp))
+
+            // Month navigation — the report is the same view for any past month
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { copied = false; vm.previousMonth() }) {
+                    Text("‹", fontSize = 24.sp, color = MaestroColors.Terra, fontWeight = FontWeight.Bold)
+                }
+                Text(
+                    monthLabel(state.selectedMonth),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaestroColors.Espresso,
+                    fontWeight = FontWeight.SemiBold
+                )
+                val canGoForward = state.selectedMonth < getCurrentMonth()
+                IconButton(onClick = { copied = false; vm.nextMonth() }, enabled = canGoForward) {
+                    Text(
+                        "›", fontSize = 24.sp, fontWeight = FontWeight.Bold,
+                        color = if (canGoForward) MaestroColors.Terra else MaestroColors.Muted.copy(alpha = 0.35f)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
 
             if (state.isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -96,20 +154,45 @@ fun FinancesScreen(repository: MaestroRepository, navController: NavHostControll
                 )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(16.dp))
 
-            Text(
-                "Detalle por Estudiante",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaestroColors.Espresso,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Detalle por Estudiante",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaestroColors.Espresso,
+                    fontWeight = FontWeight.Bold
+                )
+                if (state.students.isNotEmpty()) TextButton(onClick = {
+                    clipboard.setText(AnnotatedString(reportText(state)))
+                    copied = true
+                }) {
+                    Text(
+                        if (copied) "✓ Copiado" else "Copiar resumen",
+                        fontSize = 12.sp,
+                        color = if (copied) MaestroColors.Forest else MaestroColors.Terra,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
 
             Spacer(Modifier.height(8.dp))
 
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(state.rows) { row ->
-                    FinanceStudentRow(row = row)
+            if (state.students.isEmpty()) {
+                Text(
+                    "Sin estudiantes para reportar.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaestroColors.Muted
+                )
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(state.rows) { row ->
+                        FinanceStudentRow(row = row)
+                    }
                 }
             }
         }
@@ -169,6 +252,15 @@ private fun FinanceStudentRow(row: StudentFinanceRow) {
                 Column {
                     Text(row.student.name, style = MaterialTheme.typography.bodyMedium, color = MaestroColors.Espresso, fontWeight = FontWeight.SemiBold)
                     Text("${row.classCount} clases · ${formatCOP(row.student.monthlyFee)}/mes", style = MaterialTheme.typography.bodySmall, color = MaestroColors.Muted)
+                    // Attendance only reads as a fact once something was marked
+                    if (row.attended > 0 || row.missed > 0) {
+                        Text(
+                            "${row.attended} asistió · ${row.missed} faltó",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 11.sp,
+                            color = if (row.missed > 0) Color(0xFF9B3B30) else MaestroColors.Forest
+                        )
+                    }
                 }
             }
             Box(
