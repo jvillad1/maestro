@@ -8,6 +8,7 @@ import com.maestro.app.dev.mockEvents
 import com.maestro.app.dev.mockStudents
 import com.maestro.app.dev.mockTasks
 import com.maestro.shared.repository.MaestroRepository
+import com.maestro.shared.dto.ClassEntryRequest
 import com.maestro.shared.model.Attendance
 import com.maestro.shared.model.ClassEntry
 import com.maestro.shared.model.Event
@@ -20,6 +21,10 @@ import kotlinx.coroutines.launch
 data class DashboardState(
     val students: List<Student> = emptyList(),
     val recentClasses: List<ClassEntry> = emptyList(),
+    /** Clases con fecha de hoy — la agenda del día. */
+    val todayClasses: List<ClassEntry> = emptyList(),
+    /** Mes completo: de acá sale el promedio de asistencia. */
+    val monthClasses: List<ClassEntry> = emptyList(),
     val upcomingEvents: List<Event> = emptyList(),
     val pendingTasks: List<Task> = emptyList(),
     val totalIncome: Long = 0L,
@@ -72,9 +77,12 @@ class DashboardViewModel(private val repository: MaestroRepository) : ViewModel(
                 val attendanceRate = if (marked == 0) null
                 else classes.count { it.attendance == Attendance.ASISTIO } * 100 / marked
 
+                val today = getCurrentDate()
                 _state.value = DashboardState(
                     students = students,
                     recentClasses = classes.takeLast(4).reversed(),
+                    todayClasses = classes.filter { it.date == today }.sortedBy { it.studentId },
+                    monthClasses = classes,
                     upcomingEvents = events.sortedBy { it.date }.take(4),
                     pendingTasks = tasks.filter { !it.done }.take(3),
                     totalIncome = totalIncome,
@@ -85,6 +93,36 @@ class DashboardViewModel(private val repository: MaestroRepository) : ViewModel(
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false)
             }
+        }
+    }
+
+    /** Marca asistencia sin salir del dashboard: pendiente → asistió → faltó. */
+    fun cycleAttendance(entry: ClassEntry) {
+        val next = when (entry.attendance) {
+            Attendance.PENDIENTE -> Attendance.ASISTIO
+            Attendance.ASISTIO -> Attendance.FALTO
+            Attendance.FALTO -> Attendance.PENDIENTE
+        }
+        viewModelScope.launch {
+            try {
+                val updated = repository.updateClass(
+                    entry.id,
+                    ClassEntryRequest(
+                        studentId = entry.studentId, date = entry.date, topic = entry.topic,
+                        paid = entry.paid, attendance = next, notes = entry.notes
+                    )
+                )
+                val month = _state.value.monthClasses.map { if (it.id == updated.id) updated else it }
+                val marked = month.count { it.attendance != Attendance.PENDIENTE }
+                _state.value = _state.value.copy(
+                    todayClasses = _state.value.todayClasses.map { if (it.id == updated.id) updated else it },
+                    recentClasses = _state.value.recentClasses.map { if (it.id == updated.id) updated else it },
+                    monthClasses = month,
+                    // el KPI se movía solo al reabrir la app; ahora sigue al chip
+                    attendanceRate = if (marked == 0) null
+                    else month.count { it.attendance == Attendance.ASISTIO } * 100 / marked
+                )
+            } catch (_: Exception) { /* el repo offline-first ya guardó local */ }
         }
     }
 

@@ -226,7 +226,8 @@ fun MaestroExpansiveHeader(
     userName: String,
     dateLabel: String,
     subtitle: String,
-    onNewClass: () -> Unit
+    onNewClass: () -> Unit,
+    onToday: () -> Unit = {}
 ) {
     Column {
         Box(
@@ -301,7 +302,7 @@ fun MaestroExpansiveHeader(
                 val actions: @Composable () -> Unit = {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         OutlinedButton(
-                            onClick = {},
+                            onClick = onToday,
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaestroColors.White),
                             border = ButtonDefaults.outlinedButtonBorder.copy(
                                 brush = Brush.horizontalGradient(listOf(MaestroColors.White.copy(alpha = 0.3f), MaestroColors.White.copy(alpha = 0.3f)))

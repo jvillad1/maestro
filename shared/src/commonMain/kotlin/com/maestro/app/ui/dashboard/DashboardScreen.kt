@@ -28,6 +28,8 @@ import com.maestro.app.ui.components.LocalWindowWidthClass
 import com.maestro.app.ui.components.WindowWidthClass
 import com.maestro.app.ui.components.MaestroExpansiveHeader
 import com.maestro.app.ui.components.formatHeaderDate
+import com.maestro.app.ui.components.AttendanceChip
+import com.maestro.shared.model.Attendance
 import com.maestro.shared.model.Task
 
 @Composable
@@ -69,7 +71,8 @@ fun DashboardScreen(
                 userName = userName,
                 dateLabel = dateLabel,
                 subtitle = subtitle,
-                onNewClass = { navController.navigate(Screen.Classes.route) }
+                onNewClass = { navController.navigate(Screen.Classes.route) },
+                onToday = { navController.navigate(Screen.Classes.route) }
             )
         }
     ) {
@@ -112,6 +115,46 @@ fun DashboardScreen(
             // Body — two columns on desktop, stacked on phones
             val leftSections: @Composable () -> Unit = {
                 Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                    // Today's agenda — what the teacher opens the app for in the morning
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        DashSectionHeader(
+                            "Clases de hoy" + if (state.todayClasses.isNotEmpty()) " · ${state.todayClasses.size}" else "",
+                            "Ver agenda ›"
+                        ) { navController.navigate(Screen.Classes.route) }
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaestroColors.White),
+                            elevation = CardDefaults.cardElevation(1.dp)
+                        ) {
+                            if (state.todayClasses.isEmpty()) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                                ) {
+                                    Text("Sin clases para hoy", fontSize = 12.5.sp, color = MaestroColors.Espresso)
+                                    Text("Registra una clase con la fecha de hoy para verla acá.",
+                                        fontSize = 11.sp, color = MaestroColors.Muted)
+                                }
+                            } else {
+                                Column {
+                                    state.todayClasses.forEachIndexed { idx, cls ->
+                                        val student = state.students.find { it.id == cls.studentId }
+                                        DashTodayRow(
+                                            studentName = student?.name ?: "Desconocido",
+                                            studentColor = dashParseColor(student?.color ?: "#C9A84C"),
+                                            topic = cls.topic,
+                                            attendance = cls.attendance,
+                                            onCycleAttendance = { vm.cycleAttendance(cls) },
+                                            isLast = idx == state.todayClasses.size - 1
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // Recent classes
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         DashSectionHeader("Clases recientes", "Ver agenda completa ›") {
@@ -388,3 +431,34 @@ private fun dashParseColor(hex: String): Color {
 
 private fun dashFormatCOP(amount: Long): String =
     "\$${amount.toString().reversed().chunked(3).joinToString(".").reversed()}"
+
+@Composable
+private fun DashTodayRow(
+    studentName: String,
+    studentColor: Color,
+    topic: String,
+    attendance: Attendance,
+    onCycleAttendance: () -> Unit,
+    isLast: Boolean
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Box(
+            modifier = Modifier.size(32.dp).clip(CircleShape).background(studentColor.copy(alpha = 0.18f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(studentName.firstOrNull()?.uppercase() ?: "?",
+                color = studentColor, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(studentName, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold,
+                color = MaestroColors.Espresso, maxLines = 1)
+            Text(topic, fontSize = 11.sp, color = MaestroColors.Muted, maxLines = 1)
+        }
+        AttendanceChip(attendance = attendance, onClick = onCycleAttendance)
+    }
+    if (!isLast) HorizontalDivider(color = MaestroColors.LightGold.copy(alpha = 0.6f))
+}
