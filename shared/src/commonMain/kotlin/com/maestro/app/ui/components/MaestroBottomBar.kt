@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.maestro.app.navigation.Screen
+import com.maestro.app.notifications.DailyReminder
 import com.maestro.app.theme.MaestroColors
 
 // Phone navigation: the 4 main sections live in the bottom bar,
@@ -66,6 +68,8 @@ fun MaestroBottomBar(
         }
     }
 
+    var showReminder by remember { mutableStateOf(false) }
+
     if (showMore) {
         ModalBottomSheet(
             onDismissRequest = { showMore = false },
@@ -100,6 +104,32 @@ fun MaestroBottomBar(
                     }
                 }
 
+                val reminder = remember { DailyReminder() }
+                if (reminder.isSupported()) {
+                    Spacer(Modifier.height(6.dp))
+                    HorizontalDivider(color = MaestroColors.LightGold)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showMore = false; showReminder = true }
+                            .padding(horizontal = 14.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        Icon(Icons.Default.Notifications, contentDescription = "Recordatorio diario",
+                            modifier = Modifier.size(20.dp), tint = MaestroColors.Muted)
+                        Text("Recordatorio diario", fontSize = 15.sp, color = MaestroColors.Muted)
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                            if (reminder.isEnabled())
+                                "${if (reminder.hour() < 10) "0" else ""}${reminder.hour()}:${if (reminder.minute() < 10) "0" else ""}${reminder.minute()}"
+                            else "Apagado",
+                            fontSize = 13.sp,
+                            color = if (reminder.isEnabled()) MaestroColors.Forest else MaestroColors.Muted
+                        )
+                    }
+                }
+
                 Spacer(Modifier.height(6.dp))
                 HorizontalDivider(color = MaestroColors.LightGold)
                 Row(
@@ -121,6 +151,10 @@ fun MaestroBottomBar(
                 Spacer(Modifier.height(24.dp))
             }
         }
+    }
+
+    if (showReminder) {
+        ReminderDialog(onDismiss = { showReminder = false })
     }
 }
 
