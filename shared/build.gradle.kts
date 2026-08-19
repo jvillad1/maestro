@@ -54,6 +54,7 @@ kotlin {
             implementation(libs.sqldelight.runtime)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.datastore.preferences)
+            implementation(libs.androidx.core.ktx)
         }
         val wasmJsMain by getting {
             dependencies {
