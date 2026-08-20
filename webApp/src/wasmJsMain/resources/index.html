@@ -4,11 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maestro</title>
+    <meta name="description" content="Estudiantes, clases, asistencia y finanzas de tu estudio de música.">
+    <meta name="theme-color" content="#2C1810">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Maestro">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <canvas id="ComposeTarget"></canvas>
-    <script src="skiko.js"></script>
     <script src="composeApp.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function () {});
+        });
+      }
+    </script>
 </body>
 </html>

@@ -23,9 +23,14 @@ fun Application.configureRouting() {
         // Serve wasmJs web app — must be last so API routes take priority
         staticResources("/", "static") {
             default("index.html")
-            // Ktor 3.x doesn't register application/wasm by default
+            // Ktor 3.x no registra estos tipos por su cuenta; sin el correcto el
+            // navegador ignora el manifest y no ofrece instalar la PWA
             contentType { url ->
-                if (url.path.endsWith(".wasm")) ContentType("application", "wasm") else null
+                when {
+                    url.path.endsWith(".wasm") -> ContentType("application", "wasm")
+                    url.path.endsWith(".webmanifest") -> ContentType("application", "manifest+json")
+                    else -> null
+                }
             }
         }
     }
