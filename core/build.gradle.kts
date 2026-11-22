@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.sqldelight)
 }
 
@@ -18,7 +18,17 @@ kotlin {
             }
         }
     }
-    jvm()
+    jvm {
+        compilations.all {
+            @OptIn(ExperimentalKotlinGradlePluginApi::class)
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_17)
+                    freeCompilerArgs.add("-Xjdk-release=17")
+                }
+            }
+        }
+    }
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -53,7 +63,7 @@ kotlin {
             implementation(libs.sqldelight.coroutines)
         }
         commonTest.dependencies {
-            implementation(kotlin("test"))
+            implementation(libs.kotlin.test)
         }
         androidMain.dependencies {
             implementation(libs.sqldelight.android.driver)
@@ -96,8 +106,8 @@ afterEvaluate {
 
 android {
     namespace = "com.maestro.core"
-    compileSdk = 35
-    defaultConfig { minSdk = 26 }
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    defaultConfig { minSdk = libs.versions.android.minSdk.get().toInt() }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
