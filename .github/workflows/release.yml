@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read  # para saber qué PR trae el APK de prueba
 
 concurrency:
   group: release-${{ github.ref }}
@@ -47,20 +48,38 @@ jobs:
       - name: Compilar APK de release
         run: ./gradlew :androidApp:assembleRelease
 
-      - name: Nombrar APK con la versión
-        run: cp androidApp/build/outputs/apk/release/androidApp-release.apk "maestro-${{ github.ref_name }}.apk"
+      # Mismo esquema que Movi (`scripts/build-apk.sh` de Movi): app + buildType + versión.
+      #   productivo (tag v*):  maestro-release-1.5.0.apk
+      #   de prueba (rama):     maestro-prueba-1.5.0-pr24.apk  (o -<sha> si la rama no tiene PR abierto)
+      # El de prueba dice qué PR trae, y no pisa al productivo en Drive.
+      - name: Nombrar APK como en Movi
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(grep -m1 'versionName' androidApp/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            NAME="maestro-release-${VERSION}.apk"
+          else
+            PR=$(gh pr list --head "$GITHUB_REF_NAME" --state open --json number -q '.[0].number' 2>/dev/null || true)
+            QUE_TRAE="${PR:+pr$PR}"
+            QUE_TRAE="${QUE_TRAE:-${GITHUB_SHA::7}}"
+            NAME="maestro-prueba-${VERSION}-${QUE_TRAE}.apk"
+          fi
+          cp androidApp/build/outputs/apk/release/androidApp-release.apk "$NAME"
+          echo "APK_NAME=$NAME" >> "$GITHUB_ENV"
+          echo "listo: $NAME"
 
       - name: APK como artifact del run
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-${{ github.ref_name }}
-          path: maestro-${{ github.ref_name }}.apk
+          name: ${{ env.APK_NAME }}
+          path: ${{ env.APK_NAME }}
 
       - name: Publicar GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" "maestro-${{ github.ref_name }}.apk" \
+          gh release create "${{ github.ref_name }}" "$APK_NAME" \
             --title "Maestro ${{ github.ref_name }}" \
             --generate-notes
