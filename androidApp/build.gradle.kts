@@ -21,8 +21,10 @@ android {
         applicationId = "com.maestro.app"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 6
-        versionName = "1.5.0"
+        // Igual que Movi: el nombre es 1.<versionCode>, y cada APK nuevo sube el código en uno.
+        // Hasta el 1.5.0 (código 6) se usó X.Y.Z; el 1.7 es el primero con este esquema.
+        versionCode = 7
+        versionName = "1.7"
     }
     signingConfigs {
         if (keystoreProps.isNotEmpty()) {

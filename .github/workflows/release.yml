@@ -49,14 +49,14 @@ jobs:
         run: ./gradlew :androidApp:assembleRelease
 
       # Mismo esquema que Movi (`scripts/build-apk.sh` de Movi): app + buildType + versión.
-      #   productivo (tag v*):  maestro-release-1.5.0.apk
-      #   de prueba (rama):     maestro-prueba-1.5.0-pr24.apk  (o -<sha> si la rama no tiene PR abierto)
+      #   productivo (tag v*):  maestro-release-1.7.apk
+      #   de prueba (rama):     maestro-prueba-1.7-pr24.apk  (o -<sha> si la rama no tiene PR abierto)
       # El de prueba dice qué PR trae, y no pisa al productivo en Drive.
       - name: Nombrar APK como en Movi
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION=$(grep -m1 'versionName' androidApp/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+          VERSION=$(grep -m1 -E '^[[:space:]]*versionName[[:space:]]*=' androidApp/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             NAME="maestro-release-${VERSION}.apk"
           else
