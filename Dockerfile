@@ -1,4 +1,4 @@
-FROM gradle:8.10.2-jdk17 AS build
+FROM gradle:8.11-jdk17 AS build
 WORKDIR /app
 COPY . .
 
@@ -10,10 +10,10 @@ RUN mkdir -p server/src/main/resources/static && \
     cp -r webApp/build/dist/wasmJs/productionExecutable/. server/src/main/resources/static/
 
 # Build server fat JAR (now includes the web app)
-RUN gradle :server:shadowJar --no-daemon --quiet -x test
+RUN gradle :server:buildFatJar --no-daemon --quiet -x test
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=build /app/server/build/libs/server.jar app.jar
+COPY --from=build /app/server/build/libs/server-all.jar app.jar
 EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]
